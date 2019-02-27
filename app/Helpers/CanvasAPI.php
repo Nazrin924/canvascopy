@@ -169,14 +169,14 @@ class CanvasAPI {
         \Log::info("CanvasAPI::createUser: email is ".$email);
         // if($realm == env('CU_REALM')) {
             if (strpos($email, '@cornell.edu')) {
-            $integration_id = "cornell-".$netid."-canvastools";
-            $login_id = $netid;
+            $integration_id = $netid . "-cornell-canvastools";
+            $login_id = $netid
             $user_id=$netid;
             $authentication_provider_id=5;
         }else{
             //if(strpos($netid, '@wcmc')) {
             if (strpos($email, '@med.cornell.edu')) {
-                $integration_id = "cu_weill-".$netid."@cumed-canvastools";
+                $integration_id = $netid "-cu_weill-canvastools";
                 $login_id = $email;
                 $user_id=$netid."@cumed";
                 $authentication_provider_id=41;
