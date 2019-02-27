@@ -1,0 +1,1 @@
+* * * * * php /www/bbrequest-test/htdocs/git/bbrequest-test/artisan schedule:run >> /www/bbrequest-test/htdocs/git/bbrequest-test/cronlog.txt

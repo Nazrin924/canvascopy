@@ -1,0 +1,238 @@
+/* Main Project CSS
+   - Builds on cornell.css (Cornell branding) and base.css (base framework)
+   - Includes starter rules for commonly-overridden styles (from base.css)
+   ************************************************************************ */
+
+/* Typography */
+
+body, .base-font {
+	font-family: Verdana, sans-serif;
+}
+h1, h2, h3 {
+	font-family: Georgia, serif;
+}
+.sans, h4, h5, h6, .form-basic label {
+	font-family: Avenir Next, Proxima Nova, 'proxima-nova', Segoe UI, Helvetica Neue, sans-serif;
+}
+h1 {
+	font-size: 34px;
+}
+h2 {
+	font-size: 28px;
+}
+h3 {
+	font-size: 22px;
+}
+h4 {
+	font-size: 18px;
+	text-transform: uppercase; /* override to "none" if necessary to use standard case */
+}
+h5 {
+	font-size: 16px;
+}
+h6 {
+	font-size: 16px;
+	color: #888;
+}
+
+/* Basic Colors 
+   - Many default colors use low-opacity RGBA values, to work over a variety of background colors.
+   - However, recent versions of Safari render RGBA borders poorly, so solid colors are used instead in some cases.
+   */
+
+blockquote, pre, 
+blockquote footer, pre footer, 
+article blockquote footer, article pre footer {
+	border-color: #dbdbdb;
+}
+article section, article aside.column {
+	border-color: #ebebeb;
+}
+blockquote, pre, article footer {
+	background-color: #f7f7f7;
+}
+article aside {
+	background: #e3f1f6;
+}
+table, td, th {
+	border-color: #ddd;
+}
+.list-menu.divs li {
+	border-color: #e5e5e5;
+}
+.list-menu.nav .children .children li, .list-menu.nav .menu .menu li {
+	border-color: #ddd;
+}
+
+/* Basic Links */
+
+a {
+	color: #b31b1b;
+}
+a:visited {
+	/* color: #b37474; */
+}
+a:hover {
+	color: #f00;
+}
+a:active {
+	color: #e5cfcf;
+}
+
+/* Basic Bullets */
+
+ul li {
+	background-image: url('../images/layout/bullets_vector/bullet_square.svg');
+}
+.no-svg ul > li {
+	background-image: url('../images/layout/bullets_pixel/bullet_square.png');
+}
+.more {
+	background-image: url('../images/layout/bullets_vector/triangle_right_red.svg');
+}
+.no-svg .more {
+	background-image: url('../images/layout/right_red.gif');
+}
+.breadcrumbs li a, .breadcrumbs li a:hover, .breadcrumbs li a:active, .breadcrumbs li a:visited {
+	background-image: url('../images/layout/bullets_vector/triangle_right.svg');
+}
+.no-svg .breadcrumbs li a, .no-svg .breadcrumbs li a:hover, .no-svg .breadcrumbs li a:active, .no-svg .breadcrumbs li a:visited {
+	background-image: url('../images/layout/icon_arrow_darkgrey.gif');
+}
+
+/* Content Bands */
+
+.band.accent1 {
+	background: #e3f1f6;
+}
+.band.accent2 {
+	background: #666;
+	color: #fff;
+}
+.band.accent3 {
+	background: #f1f2df;
+}
+.band.accent4 {
+	background: #000;
+	color: #aaa;
+}
+.band.accent5 {
+	background: #f0f0f0;
+	color: #666;
+}
+.band.accent6 {
+	background: #b31b1b;
+	color: #e4bcbc;
+}
+
+
+/* Site Header
+   ************************************ */
+
+#site-header {
+	background: #fff;
+}
+#site-header h1 {
+	font-size: 36px;
+}
+#site-header h2 {
+	color: #999;
+	color: rgba(0,0,0,0.6);
+}
+#site-header.campaign {
+	background-image: url('../images/photos/campus_night.jpg'); 
+}
+
+
+/* Main Navigation
+   ************************************ */
+
+#main-navigation {
+	background: #666;
+	color: #fff;
+}
+.nav-justified #main-navigation li, .nav-justified #main-navigation li:first-child {
+	border-color: #888;
+}
+#main-navigation a {
+	color: #fff;
+}
+#main-navigation li.current-menu-item a, #main-navigation li.current-page-ancestor a, #main-navigation li.activeSection a, 
+#main-navigation a:hover, #main-navigation li.active a, #main-navigation li:hover > a {
+	background: #333;
+}
+#main-navigation a:focus { 
+	background: #333;
+	outline-color: #fff;
+}
+
+/* Dropdown Navigation */
+
+#main-navigation ul ul {
+	background: #555;
+	max-width: 24em;
+}
+#main-navigation ul ul > li:first-child, #main-navigation ul ul ul, #main-navigation ul ul ul.flip {
+	border-color: #888;
+}
+#main-navigation ul ul ul {
+	-moz-box-shadow: 0 -2px 0 #888;
+	-webkit-box-shadow: 0 -2px 0 #888;
+	box-shadow: 0 -2px 0 #888;
+}
+#main-navigation li.parent li a {
+	white-space: nowrap; /* override to "normal" if necessary to display long link titles with line breaks */
+}
+
+
+/* Site Footer
+   ************************************ */
+
+body > footer.band {
+	background: #222;
+	color: #fff;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/* Media Queries 
+   ********************************************************** */
+/* ********************************************************** */
+@media only screen and (max-width: 1023px) { /* ************* */
+
+
+
+/* ************** */ }
+/* ********************************************************** */
+@media only screen and (max-width: 767px) { /* ************* */
+
+
+
+/* ************** */ }
+/* ********************************************************** */
+@media only screen and (max-width: 567px) { /* ************* */
+
+
+
+/* ************** */ }
+/* ********************************************************** */
+@media only screen and (max-width: 479px) { /* ************* */
+
+
+
+/* ************** */ }
+/* ********************************************************** */
+@media only print { /* Project Print Styles ***************** */
+
+
+
+/* ************** */ }

@@ -1,0 +1,6 @@
+.env
+.env.example
+storage/framework.*
+storage/*.txt
+public/testers.json
+cronlog.txt
