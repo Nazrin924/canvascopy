@@ -97,7 +97,7 @@ class CanvasAPI {
         $token = env("CVS_WS_TOKEN");
         $apiHost = env("CVS_WS_URL");
         $client = new Client();
-        $response = $client->request("GET", $apiHost."accounts/self/users", [
+        $response = $client->request("GET", $apiHost."/accounts/self/users", [
             'headers' => [
                 'Authorization' => 'Bearer ' . $token,
                 'Accept'        => 'application/json',
