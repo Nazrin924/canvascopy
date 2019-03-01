@@ -97,7 +97,7 @@ class CanvasAPI {
         $token = env("CVS_WS_TOKEN");
         $apiHost = env("CVS_WS_URL");
         $client = new Client();
-        $response = $client->request("GET", $apiHost."/accounts/self/users", [
+        $response = $client->request("GET", $apiHost."accounts/self/users", [
             'headers' => [
                 'Authorization' => 'Bearer ' . $token,
                 'Accept'        => 'application/json',
@@ -107,10 +107,8 @@ class CanvasAPI {
                 'search_term'   => $netid,
             ]
         ]);
-        $body = $response->getBody();
+        $results = json_decode($response->getBody(), true);
 
-        dd($body);
-        
         if(isset($results[0]["id"])) {
             //dd($results);
             \Log::info("User exists: ".$results[0]["id"]);
@@ -133,12 +131,22 @@ class CanvasAPI {
      */
 
     public static function findCourse($courseId) {
-        $params="accounts/1/courses?search_term=".$courseId;
-        $results = (new self)->apiCall('get', $params);
-        //$results=null;
-        //dd($results);
+        $token = env("CVS_WS_TOKEN");
+        $apiHost = env("CVS_WS_URL");
+        $client = new Client();
+        $response = $client->request("GET", $apiHost."accounts/1/courses", [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $token,
+                'Accept'        => 'application/json',
+                'http_errors' => true,
+            ],
+            'form_params' => [
+                'search_term'   => $courseId,
+            ]
+        ]);
+        $results = json_decode($response->getBody(), true);
+
         if(isset($results["id"])) {
-            //dd($results);
             \Log::info("Course exists: ".$results["id"]);
             return true;
         }
@@ -199,7 +207,9 @@ class CanvasAPI {
 
             ]
         ]);
-        var_dump($response);
+        $results = json_decode($response->getBody(), true);
+
+        dd($result);
 
         return true;
 
