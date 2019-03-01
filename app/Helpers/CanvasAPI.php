@@ -107,9 +107,10 @@ class CanvasAPI {
                 'search_term'   => $netid,
             ]
         ]);
+        $body = $response->getBody();
 
-
-        dd($response);
+        dd($body);
+        
         if(isset($results[0]["id"])) {
             //dd($results);
             \Log::info("User exists: ".$results[0]["id"]);
