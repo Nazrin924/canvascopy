@@ -161,7 +161,7 @@ class CanvasAPI {
         }else {
             //if(strpos($netid, '@wcmc')) {
             if (strpos($email, '@med.cornell.edu')) {
-                $integration_id = $netid "-cu_weill-canvastools";
+                $integration_id = $netid . "-cu_weill-canvastools";
                 $login_id = $email;
                 $user_id=$netid."@cumed";
                 $authentication_provider_id=41;
