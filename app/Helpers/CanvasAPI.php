@@ -94,11 +94,20 @@ class CanvasAPI {
      * @return boolean
      */
     public static function findUser($netid) {
-        //$netid = "nst37";
-        $params="accounts/self/users?search_term=".$netid;
-        $results = (new self)->apiCall('get', $params);
-        //$results=null;
-        //dd($results);
+        $client = new Client();
+        $response = $client->request("GET", $this->apiHost."accounts/self/users", [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $this->token,
+                'Accept'        => 'application/json',
+                'http_errors' => true,
+            ],
+            'form_params' => [
+                'search_term'   => $netid,
+            ]
+        ]);
+
+
+        dd($results);
         if(isset($results[0]["id"])) {
             //dd($results);
             \Log::info("User exists: ".$results[0]["id"]);
