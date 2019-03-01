@@ -28,24 +28,10 @@ class CanvasAPI {
 
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Setters
-    |--------------------------------------------------------------------------
-    */
+    function __construct() {
 
-    /**
-     * @param mixed $apiHost
-     */
-    public function setApiHost($apiHost) {
-        $this->apiHost = $apiHost;
-    }
-
-    /**
-     * @param mixed $token
-     */
-    public function setToken($token) {
-        $this->token = $token;
+        $this->token = env("CVS_WS_TOKEN");
+        $this->apiHost = env("CVS_WS_URL")
     }
 
 
@@ -71,11 +57,10 @@ class CanvasAPI {
      */
 
     public function apiCall($method, $params) {
-        $token = env("CVS_WS_TOKEN");
 
-        $client = new Client(['base_uri' => 'https://cornell.beta.instructure.com/api/v1/']);
+        $client = new Client(['base_uri' => $this->apiHost]);
         $headers = [
-            'Authorization' => 'Bearer ' . $token,
+            'Authorization' => 'Bearer ' . $this->token,
             'Accept'        => 'application/json',
             'http_errors' => true,
         ];
@@ -120,7 +105,7 @@ class CanvasAPI {
             return true;
         }
         else {
-            \Log::info("Failed findUser. ");
+            \Log::info("Failed findUser $netid. ");
             return false;
         }
 
@@ -168,12 +153,12 @@ class CanvasAPI {
         // $realm = session()->get('realm'); // no access to realm when called from job
         \Log::info("CanvasAPI::createUser: email is ".$email);
         // if($realm == env('CU_REALM')) {
-            if (strpos($email, '@cornell.edu')) {
+        if (strpos($email, '@cornell.edu')) {
             $integration_id = $netid . "-cornell-canvastools";
             $login_id = $netid
             $user_id=$netid;
             $authentication_provider_id=5;
-        }else{
+        }else {
             //if(strpos($netid, '@wcmc')) {
             if (strpos($email, '@med.cornell.edu')) {
                 $integration_id = $netid "-cu_weill-canvastools";
@@ -182,8 +167,28 @@ class CanvasAPI {
                 $authentication_provider_id=41;
             }
         }
-        $params="accounts/1/users?first_name=".$firstName."&last_name=".$lastName."&email=".$email."&login_id=".$login_id."&user_id=".$user_id."&integration_id=".$integration_id."&status=active"."&authentication_provider_id=".$authentication_provider_id;
-        $results = (new self)->apiCall('post', $params);
+
+        $client = new Client();
+        $response = $client->request("POST", $this->apiHost."accounts/1/users", [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $this->token,
+                'Accept'        => 'application/json',
+                'http_errors' => true,
+            ],
+            'form_params' => [
+                'first_name'    => $firstName,
+                'last_name'     => $lastName,
+                'email'         => $email,
+                'login_id'      => $login_id,
+                'user_id'       => $user_id,
+                'integration_id'=> $integration_id,
+                'status'        => "active",
+                'authenication_provider_id' => $authentication_provider_id,
+
+            ]
+        ]);
+        var_dump($response);
+
         return true;
 
     }
