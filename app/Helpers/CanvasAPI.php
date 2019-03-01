@@ -94,10 +94,12 @@ class CanvasAPI {
      * @return boolean
      */
     public static function findUser($netid) {
+        $token = env("CVS_WS_TOKEN");
+        $apiHost = env("CVS_WS_URL");
         $client = new Client();
-        $response = $client->request("GET", $this->apiHost."accounts/self/users", [
+        $response = $client->request("GET", $apiHost."accounts/self/users", [
             'headers' => [
-                'Authorization' => 'Bearer ' . $this->token,
+                'Authorization' => 'Bearer ' . $token,
                 'Accept'        => 'application/json',
                 'http_errors' => true,
             ],
