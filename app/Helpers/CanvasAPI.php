@@ -109,7 +109,7 @@ class CanvasAPI {
         ]);
 
 
-        dd($results);
+        dd($response);
         if(isset($results[0]["id"])) {
             //dd($results);
             \Log::info("User exists: ".$results[0]["id"]);
