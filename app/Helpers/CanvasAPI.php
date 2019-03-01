@@ -31,7 +31,7 @@ class CanvasAPI {
     function __construct() {
 
         $this->token = env("CVS_WS_TOKEN");
-        $this->apiHost = env("CVS_WS_URL")
+        $this->apiHost = env("CVS_WS_URL");
     }
 
 
