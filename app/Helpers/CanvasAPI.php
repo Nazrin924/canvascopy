@@ -170,6 +170,8 @@ class CanvasAPI {
      * @return boolean
      */
     public static function createUser($firstName, $lastName,$email, $netid) {
+        $token = env("CVS_WS_TOKEN");
+        $apiHost = env("CVS_WS_URL");
         // $realm = session()->get('realm'); // no access to realm when called from job
         \Log::info("CanvasAPI::createUser: email is ".$email);
         // if($realm == env('CU_REALM')) {
@@ -189,9 +191,9 @@ class CanvasAPI {
         }
 
         $client = new Client();
-        $response = $client->request("POST", $this->apiHost."accounts/1/users", [
+        $response = $client->request("POST", $apiHost."accounts/1/users", [
             'headers' => [
-                'Authorization' => 'Bearer ' . $this->token,
+                'Authorization' => 'Bearer ' . $token,
                 'Accept'        => 'application/json',
                 'http_errors' => true,
             ],
@@ -209,12 +211,11 @@ class CanvasAPI {
         ]);
         $results = json_decode($response->getBody(), true);
 
-        dd($result);
-
+        \Log::info("CanvasAPI::createUser: results ".$response->getBody());
+        
         return true;
 
     }
-
 
 
     /**
