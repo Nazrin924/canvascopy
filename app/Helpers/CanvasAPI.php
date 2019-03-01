@@ -155,7 +155,7 @@ class CanvasAPI {
         // if($realm == env('CU_REALM')) {
         if (strpos($email, '@cornell.edu')) {
             $integration_id = $netid . "-cornell-canvastools";
-            $login_id = $netid
+            $login_id = $netid;
             $user_id=$netid;
             $authentication_provider_id=5;
         }else {
