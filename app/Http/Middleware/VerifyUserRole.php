@@ -185,8 +185,6 @@ class VerifyUserRole
             $name = CanvasAPI::findUser(trim($netID));
             session()->put('canCreateUser', !$name);
             session()->put('canCreateSite', $data["canCreateSite"] && $name);
-            Log::info("User $netID has been checked on Canvas - they".
-                (!$name ? " don't " : " do ")."have a current account");
 
         }
 	}
