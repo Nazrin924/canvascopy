@@ -198,14 +198,14 @@ class CanvasAPI {
                 'http_errors' => true,
             ],
             'form_params' => [
-                'first_name'    => $firstName,
-                'last_name'     => $lastName,
-                'email'         => $email,
-                'login_id'      => $login_id,
-                'user_id'       => $user_id,
-                'integration_id'=> $integration_id,
-                'status'        => "active",
-                'authenication_provider_id' => $authentication_provider_id,
+                'user[name]'    => $firstName.' '.$lastName,
+                'user[email]'   => $email,
+                'user[login_id]'      => $login_id,
+                'user[user_id]'       => $user_id,
+                'user[integration_id]'=> $integration_id,
+                'user[status]'        => "active",
+                'user[authenication_provider_id]' => $authentication_provider_id,
+                'pseudonym[unique_id]' => $email,
 
             ]
         ]);
