@@ -224,8 +224,8 @@ class CourseController extends Controller
 	public function confirmation(Request $request) {
 		$netID = session()->has('netid') ? session()->get('netid') : $request->headers->get(env('CU_REMOTE'));
     if(session()->get('realm') != env('CU_REALM')) {
-      if(!strpos($netID, '@cumed')) {
-        $netID .= "@cumed";
+      if(!strpos($netID, '@wcmc')) {
+        $netID .= "@wcmc";
       }
     }
 		if(!session()->get("canCreateSite")) {
@@ -272,8 +272,8 @@ class CourseController extends Controller
         return view("badCourseID");
     }
     $email = "";
-    if(strpos($netID, '@cumed') !== false) {
-      $repNetID = str_replace("@cumed", "", $netID);
+    if(strpos($netID, '@wcmc') !== false) {
+      $repNetID = str_replace("@wcmc", "", $netID);
       $email = "$repNetID@med.cornell.edu";
     }
     elseif(session()->get('realm') != env('CU_REALM')) {

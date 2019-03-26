@@ -7,7 +7,7 @@
 		<p>Your new Canvas user account has been created with the following details:</p>
 
 		<ul>
-			<li>User-ID: {{str_replace("@cumed", "", $netID)}}</li>
+			<li>User-ID: {{str_replace("@wcmc", "", $netID)}}</li>
 			<li>First Name: {{$firstName}}</li>
 			<li>Last Name: {{$lastName}}</li>
 			<li>Email: {{$email}}</li>

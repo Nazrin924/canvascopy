@@ -160,7 +160,7 @@ class LDAP
 
             if($info) {
                 if(isset($info['count']) && $info['count'] == 0) {
-                    //Log::info("NetID not found in Active Directory");
+                    Log::info("NetID not found in Active Directory");
                     return $shortGroupNames;
                 }
 

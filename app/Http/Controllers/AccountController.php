@@ -50,8 +50,8 @@ class AccountController extends Controller
 			$weill = false;
 		}
 		else {
-      if(strpos($netID, '@cumed')) {
-        $netID = str_replace("@cumed", "", $netID);
+      if(strpos($netID, '@wcmc')) {
+        $netID = str_replace("@wcmc", "", $netID);
       }
 			$email = "$netID@med.cornell.edu";
 			$weill = true;
@@ -103,8 +103,8 @@ class AccountController extends Controller
 
 		$netID = $request->has('noChange') ? $request->get('noChange') : $request->get('txtNetID');
     if(session()->get('realm') != env('CU_REALM')) {
-      if(!strpos($netID, '@cumed')) {
-        $netID .= "@cumed";
+      if(!strpos($netID, '@wcmc')) {
+        $netID .= "@wcmc";
       }
     }
     $firstName = $request->get("txtFirstName");

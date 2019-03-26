@@ -85,8 +85,8 @@ class VerifyUserRole
         $this->checkCreation($netID, $realm);
       } else {
           $this->checkCreation($netID, $realm);
-        if(!strpos($netID, '@cumed')) {
-          $netID .= "@cumed";
+        if(!strpos($netID, '@wcmc')) {
+          $netID .= "@wcmc";
         }
       }
     } catch(Exception $e) {
@@ -113,8 +113,8 @@ class VerifyUserRole
         $this->checkAccount($netID);
       }
       else {
-        if(!strpos($netID, '@cumed')) {
-          $netID .= "@cumed";
+        if(!strpos($netID, '@wcmc')) {
+          $netID .= "@wcmc";
         }
         $this->checkAccount($netID);
       }
@@ -171,8 +171,8 @@ class VerifyUserRole
         if(!array_filter($data)) {
             return Redirect::route('ldapError');
         }
-        if(!strpos($netID, '@cumed') && $realm == "A.WCMC-AD.NET") {
-            $netID .= "@cumed";
+        if(!strpos($netID, '@wcmc') && $realm == "A.WCMC-AD.NET") {
+            $netID .= "@wcmc";
         }
 		session()->put("firstname",	$data["firstname"]);
 		session()->put("lastname", $data["lastname"]);
