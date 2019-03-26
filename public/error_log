@@ -1,0 +1,1 @@
+[13-Mar-2019 20:23:40 UTC] PHP Fatal error:  Cannot declare class App\Helpers\CanvasAPI, because the name is already in use in /home/canvasdev/public_html/canvasrequest/app/Jobs/DoAccountCreation.php on line 15

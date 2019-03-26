@@ -85,8 +85,8 @@ class VerifyUserRole
         $this->checkCreation($netID, $realm);
       } else {
           $this->checkCreation($netID, $realm);
-        if(!strpos($netID, '@wcmc')) {
-          $netID .= "@wcmc";
+        if(!strpos($netID, '@cumed')) {
+          $netID .= "@cumed";
         }
       }
     } catch(Exception $e) {
@@ -113,8 +113,8 @@ class VerifyUserRole
         $this->checkAccount($netID);
       }
       else {
-        if(!strpos($netID, '@wcmc')) {
-          $netID .= "@wcmc";
+        if(!strpos($netID, '@cumed')) {
+          $netID .= "@cumed";
         }
         $this->checkAccount($netID);
       }
@@ -171,8 +171,8 @@ class VerifyUserRole
         if(!array_filter($data)) {
             return Redirect::route('ldapError');
         }
-        if(!strpos($netID, '@wcmc') && $realm == "A.WCMC-AD.NET") {
-            $netID .= "@wcmc";
+        if(!strpos($netID, '@cumed') && $realm == "A.WCMC-AD.NET") {
+            $netID .= "@cumed";
         }
 		session()->put("firstname",	$data["firstname"]);
 		session()->put("lastname", $data["lastname"]);
@@ -185,8 +185,6 @@ class VerifyUserRole
             $name = CanvasAPI::findUser(trim($netID));
             session()->put('canCreateUser', !$name);
             session()->put('canCreateSite', $data["canCreateSite"] && $name);
-            Log::info("User $netID has been checked on Canvas - they".
-                (!$name ? " don't " : " do ")."have a current account");
 
         }
 	}
