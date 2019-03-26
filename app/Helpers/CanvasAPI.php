@@ -104,18 +104,18 @@ class CanvasAPI {
                 'http_errors' => true,
             ],
             'form_params' => [
-                'search_term'   => $netid,
+                'search_term'   => str_replace("@cumed", "", $netid),
             ]
         ]);
         $results = json_decode($response->getBody(), true);
 
         if(isset($results[0]["id"])) {
             //dd($results);
-            \Log::info("User exists: ".$results[0]["id"]);
+            \Log::info("User $netid exists in Canvas.");
             return true;
         }
         else {
-            \Log::info("Failed findUser $netid. ");
+            \Log::info("Did not find $netid in Canvas. ");
             return false;
         }
 
@@ -147,11 +147,11 @@ class CanvasAPI {
         $results = json_decode($response->getBody(), true);
 
         if(isset($results["id"])) {
-            \Log::info("Course exists: ".$results["id"]);
+            \Log::info("Course $courseId exists in Canvas.");
             return true;
         }
         else {
-            \Log::info("Failed findCourse. ");
+            \Log::info("Did not find course $courseId in Canvas.");
             return false;
         }
 
@@ -174,19 +174,30 @@ class CanvasAPI {
         $apiHost = env("CVS_WS_URL");
         // $realm = session()->get('realm'); // no access to realm when called from job
         \Log::info("CanvasAPI::createUser: email is ".$email);
+        \Log::info((strpos($email, '@cornell.edu')));
+        \Log::info((strpos($email, '@med.cornell.edu')));
         // if($realm == env('CU_REALM')) {
-        if (strpos($email, '@cornell.edu')) {
+        if (strpos($email, '@cornell.edu') !== false) {
             $integration_id = $netid . "-cornell-canvastools";
             $login_id = $netid;
             $user_id=$netid;
             $authentication_provider_id=5;
+            \Log::info("Cornell netid is ".$netid);
+            \Log::info("Cornell integration_id is ".$integration_id);
+            \Log::info("Cornell login_id is ".$login_id);
+            \Log::info("Cornell user_id is ".$user_id);
         }else {
             //if(strpos($netid, '@wcmc')) {
-            if (strpos($email, '@med.cornell.edu')) {
+            if (strpos($email, '@med.cornell.edu') !== false) {
                 $integration_id = $netid . "-cu_weill-canvastools";
                 $login_id = $email;
-                $user_id=$netid."@cumed";
+                //$user_id=$netid."@cumed";
+                $user_id=$netid;
                 $authentication_provider_id=41;
+                \Log::info("Weill netid is ".$netid);
+                \Log::info("Weill integration_id is ".$integration_id);
+                \Log::info("Weill login_id is ".$login_id);
+                \Log::info("Weill user_id is ".$user_id);
             }
         }
 
@@ -199,20 +210,21 @@ class CanvasAPI {
             ],
             'form_params' => [
                 'user[name]'    => $firstName.' '.$lastName,
-                'user[email]'   => $email,
+                'communication_channel[type]' => "email",
+                'communication_channel[address]'   => $email,
                 'user[login_id]'      => $login_id,
                 'user[user_id]'       => $user_id,
-                'user[integration_id]'=> $integration_id,
+                'pseudonym[integration_id]'=> $integration_id,
                 'user[status]'        => "active",
-                'user[authenication_provider_id]' => $authentication_provider_id,
-                'pseudonym[unique_id]' => $email,
+                'pseudonym[authenication_provider_id]' => $authentication_provider_id,
+                'pseudonym[unique_id]' => $user_id,
 
             ]
         ]);
         $results = json_decode($response->getBody(), true);
 
         \Log::info("CanvasAPI::createUser: results ".$response->getBody());
-        
+
         return true;
 
     }

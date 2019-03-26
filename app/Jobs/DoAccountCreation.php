@@ -91,6 +91,7 @@ class DoAccountCreation extends Job implements ShouldQueue
                 $this->email,
                 $this->netID
             );
+            sleep(60);
 
         } catch(Exception $e) {
           Log::error("Canvas failure in account creation - aborting");
