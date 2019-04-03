@@ -101,6 +101,7 @@ class DoAccountCreation extends Job implements ShouldQueue
         Log::info("Attempts check: ". $this->attempts() . " compared with ".env('NUM_ATTEMPTS'));
 
   		if($this->attempts() > env('NUM_ATTEMPTS')) {
+            Log::info("Got to the attempts checkup $attempts");
   			$netID = $this->netID;
             try {
         			 $mailer->send('emails.AccountFailed',
