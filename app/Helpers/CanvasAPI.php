@@ -122,6 +122,39 @@ class CanvasAPI {
     }
 
     /**
+     * getUserID() - function to get Canvas user ID given a netid
+     *
+     * @param $netid
+     *
+     * @throws \Exception
+     * @return int
+     */
+    public static function getUserID($netid) {
+        $token = env("CVS_WS_TOKEN");
+        $apiHost = env("CVS_WS_URL");
+        $client = new Client();
+        $response = $client->request("GET", $apiHost."accounts/self/users", [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $token,
+                'Accept'        => 'application/json',
+                'http_errors' => true,
+            ],
+            'form_params' => [
+                'search_term'   => str_replace("@cumed", "", $netid),
+            ]
+        ]);
+        $results = json_decode($response->getBody(), true);
+
+        if(isset($results[0]["id"])) {
+            return $results[0]["id"];
+        }
+        else {
+            return 0;
+        }
+
+    }    
+
+    /**
      * findCourse() - function to check if a course exists
      *
      * @param $courseId
@@ -239,10 +272,11 @@ class CanvasAPI {
      * @throws \Exception
      * @return boolean
      */
-    public static function createCourse($courseId,$courseName) {
+    public static function createCourse($courseId,$courseName,$netid) {
         $params="accounts/51/courses?course[name]=".$courseName."&course[code]=".$courseId."&course[term_id]=46"."&course[is_public]=false";
         //$results = apiCall('post', $params,$form_params[]);
         $results = (new self)->apiCall('post', $params);
+        $enrolled = (new self)->enrollUser($netid, $results["id"]);
         return true;
         //return courseId;
     }
@@ -257,7 +291,8 @@ class CanvasAPI {
      * @return boolean
      */
     public static function enrollUser($netid, $courseId) {
-        $params="accounts/51/courses".$courseId."/enrollments"."&enrollment[user_id]=".$netid."&enrollment[type]=TeacherEnrollment&enrollment[enrollment_state]=active&enrollment[limit_privileges_to_course_section]=false&enrollment[notify]=false";
+        $userID=(new self)->getUserID($netid);
+        $params="courses/".$courseId."/enrollments?enrollment[user_id]=".$userID."&enrollment[type]=TeacherEnrollment&enrollment[enrollment_state]=active&enrollment[limit_privileges_to_course_section]=false&enrollment[notify]=false";
         $results = (new self)->apiCall('post', $params);
         return true;
         //return courseId;

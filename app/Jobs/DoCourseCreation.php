@@ -71,7 +71,8 @@ class DoCourseCreation extends Job implements ShouldQueue
       try {
     		$course = CanvasAPI::createCourse(
           htmlspecialchars(utf8_encode($this->courseID), ENT_QUOTES, 'UTF-8'),
-          htmlspecialchars(utf8_encode($this->courseName), ENT_QUOTES, 'UTF-8')
+          htmlspecialchars(utf8_encode($this->courseName), ENT_QUOTES, 'UTF-8'),
+          htmlspecialchars(utf8_encode($this->netID), ENT_QUOTES, 'UTF-8')
         );
       } catch(Exception $e) {
         \Log::error("Canvas error in course creation - aborting.");
