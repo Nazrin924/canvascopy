@@ -4,6 +4,7 @@ storage/framework.*
 storage/*.txt
 public/testers.json
 cronlog.txt
+public/error_log
 # Mac webdav files
 ._*
 */._*
