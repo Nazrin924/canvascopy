@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2018 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -23,14 +23,14 @@ class LeavePsyshAlonePass extends CodeCleanerPass
     /**
      * Validate that the user input does not reference the `$__psysh__` variable.
      *
-     * @throws RuntimeException if the user is messing with $__psysh__.
+     * @throws RuntimeException if the user is messing with $__psysh__
      *
      * @param Node $node
      */
     public function enterNode(Node $node)
     {
         if ($node instanceof Variable && $node->name === '__psysh__') {
-            throw new RuntimeException('Don\'t mess with $__psysh__. Bad things will happen.');
+            throw new RuntimeException('Don\'t mess with $__psysh__; bad things will happen');
         }
     }
 }

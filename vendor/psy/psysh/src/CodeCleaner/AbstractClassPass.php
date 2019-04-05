@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2018 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,7 +12,7 @@
 namespace Psy\CodeCleaner;
 
 use PhpParser\Node;
-use PhpParser\Node\Stmt\Class_ as ClassStmt;
+use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassMethod;
 use Psy\Exception\FatalErrorException;
 
@@ -25,44 +25,46 @@ class AbstractClassPass extends CodeCleanerPass
     private $abstractMethods;
 
     /**
-     * @throws RuntimeException if the node is an abstract function with a body.
+     * @throws RuntimeException if the node is an abstract function with a body
      *
      * @param Node $node
      */
     public function enterNode(Node $node)
     {
-        if ($node instanceof ClassStmt) {
+        if ($node instanceof Class_) {
             $this->class = $node;
-            $this->abstractMethods = array();
+            $this->abstractMethods = [];
         } elseif ($node instanceof ClassMethod) {
             if ($node->isAbstract()) {
-                $name = sprintf('%s::%s', $this->class->name, $node->name);
+                $name = \sprintf('%s::%s', $this->class->name, $node->name);
                 $this->abstractMethods[] = $name;
 
                 if ($node->stmts !== null) {
-                    throw new FatalErrorException(sprintf('Abstract function %s cannot contain body', $name));
+                    $msg = \sprintf('Abstract function %s cannot contain body', $name);
+                    throw new FatalErrorException($msg, 0, E_ERROR, null, $node->getLine());
                 }
             }
         }
     }
 
     /**
-     * @throws RuntimeException if the node is a non-abstract class with abstract methods.
+     * @throws RuntimeException if the node is a non-abstract class with abstract methods
      *
      * @param Node $node
      */
     public function leaveNode(Node $node)
     {
-        if ($node instanceof ClassStmt) {
-            $count = count($this->abstractMethods);
+        if ($node instanceof Class_) {
+            $count = \count($this->abstractMethods);
             if ($count > 0 && !$node->isAbstract()) {
-                throw new FatalErrorException(sprintf(
+                $msg = \sprintf(
                     'Class %s contains %d abstract method%s must therefore be declared abstract or implement the remaining methods (%s)',
                     $node->name,
                     $count,
-                    ($count === 0) ? '' : 's',
-                    implode(', ', $this->abstractMethods)
-                ));
+                    ($count === 1) ? '' : 's',
+                    \implode(', ', $this->abstractMethods)
+                );
+                throw new FatalErrorException($msg, 0, E_ERROR, null, $node->getLine());
             }
         }
     }

@@ -206,9 +206,9 @@ class CanvasAPI {
         $token = env("CVS_WS_TOKEN");
         $apiHost = env("CVS_WS_URL");
         // $realm = session()->get('realm'); // no access to realm when called from job
-        \Log::info("CanvasAPI::createUser: email is ".$email);
-        \Log::info((strpos($email, '@cornell.edu')));
-        \Log::info((strpos($email, '@med.cornell.edu')));
+        \Log::info("CanvasAPI::createUser was started for:".$netid);
+        //\Log::info((strpos($email, '@cornell.edu')));
+        //\Log::info((strpos($email, '@med.cornell.edu')));
         // if($realm == env('CU_REALM')) {
         if (strpos($email, '@cornell.edu') !== false) {
             $integration_id = $netid . "-cornell-canvastools";
@@ -235,6 +235,7 @@ class CanvasAPI {
         }
 
         $client = new Client();
+        try {
         $response = $client->request("POST", $apiHost."accounts/1/users", [
             'headers' => [
                 'Authorization' => 'Bearer ' . $token,
@@ -255,8 +256,12 @@ class CanvasAPI {
             ]
         ]);
         $results = json_decode($response->getBody(), true);
-
-        \Log::info("CanvasAPI::createUser: results ".$response->getBody());
+        } catch(Exception $e) {
+          Log::error("Canvas failure in account creation");
+          return false;
+        }
+        
+        \Log::info("CanvasAPI::createUser: ".$netid." was created successfully ");
 
         return true;
 

@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2018 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -32,10 +32,10 @@ class HelpCommand extends Command
     {
         $this
             ->setName('help')
-            ->setAliases(array('?'))
-            ->setDefinition(array(
-                new InputArgument('command_name', InputArgument::OPTIONAL, 'The command name', null),
-            ))
+            ->setAliases(['?'])
+            ->setDefinition([
+                new InputArgument('command_name', InputArgument::OPTIONAL, 'The command name.', null),
+            ])
             ->setDescription('Show a list of commands. Type `help [foo]` for information about [foo].')
             ->setHelp('My. How meta.');
     }
@@ -74,16 +74,16 @@ class HelpCommand extends Command
                 }
 
                 if ($command->getAliases()) {
-                    $aliases = sprintf('<comment>Aliases:</comment> %s', implode(', ', $command->getAliases()));
+                    $aliases = \sprintf('<comment>Aliases:</comment> %s', \implode(', ', $command->getAliases()));
                 } else {
                     $aliases = '';
                 }
 
-                $table->addRow(array(
-                    sprintf('<info>%s</info>', $name),
+                $table->addRow([
+                    \sprintf('<info>%s</info>', $name),
                     $command->getDescription(),
                     $aliases,
-                ));
+                ]);
             }
 
             $output->startPaging();

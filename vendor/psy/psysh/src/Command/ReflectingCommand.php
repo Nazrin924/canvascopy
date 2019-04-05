@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2018 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,8 +11,10 @@
 
 namespace Psy\Command;
 
+use Psy\CodeCleaner\NoReturnValue;
 use Psy\Context;
 use Psy\ContextAware;
+use Psy\Exception\ErrorException;
 use Psy\Exception\RuntimeException;
 use Psy\Util\Mirror;
 
@@ -22,11 +24,9 @@ use Psy\Util\Mirror;
 abstract class ReflectingCommand extends Command implements ContextAware
 {
     const CLASS_OR_FUNC   = '/^[\\\\\w]+$/';
-    const INSTANCE        = '/^\$(\w+)$/';
     const CLASS_MEMBER    = '/^([\\\\\w]+)::(\w+)$/';
     const CLASS_STATIC    = '/^([\\\\\w]+)::\$(\w+)$/';
-    const INSTANCE_MEMBER = '/^\$(\w+)(::|->)(\w+)$/';
-    const INSTANCE_STATIC = '/^\$(\w+)::\$(\w+)$/';
+    const INSTANCE_MEMBER = '/^(\$\w+)(::|->)(\w+)$/';
 
     /**
      * Context instance (for ContextAware interface).
@@ -48,49 +48,44 @@ abstract class ReflectingCommand extends Command implements ContextAware
     /**
      * Get the target for a value.
      *
-     * @throws \InvalidArgumentException when the value specified can't be resolved.
+     * @throws \InvalidArgumentException when the value specified can't be resolved
      *
-     * @param string $valueName Function, class, variable, constant, method or property name.
-     * @param bool   $classOnly True if the name should only refer to a class, function or instance
+     * @param string $valueName Function, class, variable, constant, method or property name
      *
      * @return array (class or instance name, member name, kind)
      */
-    protected function getTarget($valueName, $classOnly = false)
+    protected function getTarget($valueName)
     {
-        $valueName = trim($valueName);
-        $matches   = array();
+        $valueName = \trim($valueName);
+        $matches   = [];
         switch (true) {
-            case preg_match(self::CLASS_OR_FUNC, $valueName, $matches):
-                return array($this->resolveName($matches[0], true), null, 0);
+            case \preg_match(self::CLASS_OR_FUNC, $valueName, $matches):
+                return [$this->resolveName($matches[0], true), null, 0];
 
-            case preg_match(self::INSTANCE, $valueName, $matches):
-                return array($this->resolveInstance($matches[1]), null, 0);
+            case \preg_match(self::CLASS_MEMBER, $valueName, $matches):
+                return [$this->resolveName($matches[1]), $matches[2], Mirror::CONSTANT | Mirror::METHOD];
 
-            case !$classOnly && preg_match(self::CLASS_MEMBER, $valueName, $matches):
-                return array($this->resolveName($matches[1]), $matches[2], Mirror::CONSTANT | Mirror::METHOD);
+            case \preg_match(self::CLASS_STATIC, $valueName, $matches):
+                return [$this->resolveName($matches[1]), $matches[2], Mirror::STATIC_PROPERTY | Mirror::PROPERTY];
 
-            case !$classOnly && preg_match(self::CLASS_STATIC, $valueName, $matches):
-                return array($this->resolveName($matches[1]), $matches[2], Mirror::STATIC_PROPERTY | Mirror::PROPERTY);
-
-            case !$classOnly && preg_match(self::INSTANCE_MEMBER, $valueName, $matches):
+            case \preg_match(self::INSTANCE_MEMBER, $valueName, $matches):
                 if ($matches[2] === '->') {
                     $kind = Mirror::METHOD | Mirror::PROPERTY;
                 } else {
                     $kind = Mirror::CONSTANT | Mirror::METHOD;
                 }
 
-                return array($this->resolveInstance($matches[1]), $matches[3], $kind);
-
-            case !$classOnly && preg_match(self::INSTANCE_STATIC, $valueName, $matches):
-                return array($this->resolveInstance($matches[1]), $matches[2], Mirror::STATIC_PROPERTY);
+                return [$this->resolveObject($matches[1]), $matches[3], $kind];
 
             default:
-                throw new RuntimeException('Unknown target: ' . $valueName);
+                return [$this->resolveObject($valueName), null, 0];
         }
     }
 
     /**
      * Resolve a class or function name (with the current shell namespace).
+     *
+     * @throws ErrorException when `self` or `static` is used in a non-class scope
      *
      * @param string $name
      * @param bool   $includeFunctions (default: false)
@@ -99,14 +94,30 @@ abstract class ReflectingCommand extends Command implements ContextAware
      */
     protected function resolveName($name, $includeFunctions = false)
     {
-        if (substr($name, 0, 1) === '\\') {
+        $shell = $this->getApplication();
+
+        // While not *technically* 100% accurate, let's treat `self` and `static` as equivalent.
+        if (\in_array(\strtolower($name), ['self', 'static'])) {
+            if ($boundClass = $shell->getBoundClass()) {
+                return $boundClass;
+            }
+
+            if ($boundObject = $shell->getBoundObject()) {
+                return \get_class($boundObject);
+            }
+
+            $msg = \sprintf('Cannot use "%s" when no class scope is active', \strtolower($name));
+            throw new ErrorException($msg, 0, E_USER_ERROR, "eval()'d code", 1);
+        }
+
+        if (\substr($name, 0, 1) === '\\') {
             return $name;
         }
 
-        if ($namespace = $this->getApplication()->getNamespace()) {
+        if ($namespace = $shell->getNamespace()) {
             $fullName = $namespace . '\\' . $name;
 
-            if (class_exists($fullName) || interface_exists($fullName) || ($includeFunctions && function_exists($fullName))) {
+            if (\class_exists($fullName) || \interface_exists($fullName) || ($includeFunctions && \function_exists($fullName))) {
                 return $fullName;
             }
         }
@@ -117,35 +128,73 @@ abstract class ReflectingCommand extends Command implements ContextAware
     /**
      * Get a Reflector and documentation for a function, class or instance, constant, method or property.
      *
-     * @param string $valueName Function, class, variable, constant, method or property name.
-     * @param bool   $classOnly True if the name should only refer to a class, function or instance
+     * @param string $valueName Function, class, variable, constant, method or property name
      *
      * @return array (value, Reflector)
      */
-    protected function getTargetAndReflector($valueName, $classOnly = false)
+    protected function getTargetAndReflector($valueName)
     {
-        list($value, $member, $kind) = $this->getTarget($valueName, $classOnly);
+        list($value, $member, $kind) = $this->getTarget($valueName);
 
-        return array($value, Mirror::get($value, $member, $kind));
+        return [$value, Mirror::get($value, $member, $kind)];
     }
 
     /**
-     * Return a variable instance from the current scope.
+     * Resolve code to a value in the current scope.
      *
-     * @throws \InvalidArgumentException when the requested variable does not exist in the current scope.
+     * @throws RuntimeException when the code does not return a value in the current scope
      *
-     * @param string $name
+     * @param string $code
      *
-     * @return mixed Variable instance.
+     * @return mixed Variable value
      */
-    protected function resolveInstance($name)
+    protected function resolveCode($code)
     {
-        $value = $this->getScopeVariable($name);
-        if (!is_object($value)) {
+        try {
+            $value = $this->getApplication()->execute($code, true);
+        } catch (\Exception $e) {
+            // Swallow all exceptions?
+        }
+
+        if (!isset($value) || $value instanceof NoReturnValue) {
+            throw new RuntimeException('Unknown target: ' . $code);
+        }
+
+        return $value;
+    }
+
+    /**
+     * Resolve code to an object in the current scope.
+     *
+     * @throws RuntimeException when the code resolves to a non-object value
+     *
+     * @param string $code
+     *
+     * @return object Variable instance
+     */
+    private function resolveObject($code)
+    {
+        $value = $this->resolveCode($code);
+
+        if (!\is_object($value)) {
             throw new RuntimeException('Unable to inspect a non-object');
         }
 
         return $value;
+    }
+
+    /**
+     * @deprecated Use `resolveCode` instead
+     *
+     * @param string $name
+     *
+     * @return mixed Variable instance
+     */
+    protected function resolveInstance($name)
+    {
+        @\trigger_error('`resolveInstance` is deprecated; use `resolveCode` instead.', E_USER_DEPRECATED);
+
+        return $this->resolveCode($name);
     }
 
     /**
@@ -168,5 +217,87 @@ abstract class ReflectingCommand extends Command implements ContextAware
     protected function getScopeVariables()
     {
         return $this->context->getAll();
+    }
+
+    /**
+     * Given a Reflector instance, set command-scope variables in the shell
+     * execution context. This is used to inject magic $__class, $__method and
+     * $__file variables (as well as a handful of others).
+     *
+     * @param \Reflector $reflector
+     */
+    protected function setCommandScopeVariables(\Reflector $reflector)
+    {
+        $vars = [];
+
+        switch (\get_class($reflector)) {
+            case 'ReflectionClass':
+            case 'ReflectionObject':
+                $vars['__class'] = $reflector->name;
+                if ($reflector->inNamespace()) {
+                    $vars['__namespace'] = $reflector->getNamespaceName();
+                }
+                break;
+
+            case 'ReflectionMethod':
+                $vars['__method'] = \sprintf('%s::%s', $reflector->class, $reflector->name);
+                $vars['__class'] = $reflector->class;
+                $classReflector = $reflector->getDeclaringClass();
+                if ($classReflector->inNamespace()) {
+                    $vars['__namespace'] = $classReflector->getNamespaceName();
+                }
+                break;
+
+            case 'ReflectionFunction':
+                $vars['__function'] = $reflector->name;
+                if ($reflector->inNamespace()) {
+                    $vars['__namespace'] = $reflector->getNamespaceName();
+                }
+                break;
+
+            case 'ReflectionGenerator':
+                $funcReflector = $reflector->getFunction();
+                $vars['__function'] = $funcReflector->name;
+                if ($funcReflector->inNamespace()) {
+                    $vars['__namespace'] = $funcReflector->getNamespaceName();
+                }
+                if ($fileName = $reflector->getExecutingFile()) {
+                    $vars['__file'] = $fileName;
+                    $vars['__line'] = $reflector->getExecutingLine();
+                    $vars['__dir']  = \dirname($fileName);
+                }
+                break;
+
+            case 'ReflectionProperty':
+            case 'ReflectionClassConstant':
+            case 'Psy\Reflection\ReflectionClassConstant':
+                $classReflector = $reflector->getDeclaringClass();
+                $vars['__class'] = $classReflector->name;
+                if ($classReflector->inNamespace()) {
+                    $vars['__namespace'] = $classReflector->getNamespaceName();
+                }
+                // no line for these, but this'll do
+                if ($fileName = $reflector->getDeclaringClass()->getFileName()) {
+                    $vars['__file'] = $fileName;
+                    $vars['__dir']  = \dirname($fileName);
+                }
+                break;
+
+            case 'Psy\Reflection\ReflectionConstant_':
+                if ($reflector->inNamespace()) {
+                    $vars['__namespace'] = $reflector->getNamespaceName();
+                }
+                break;
+        }
+
+        if ($reflector instanceof \ReflectionClass || $reflector instanceof \ReflectionFunctionAbstract) {
+            if ($fileName = $reflector->getFileName()) {
+                $vars['__file'] = $fileName;
+                $vars['__line'] = $reflector->getStartLine();
+                $vars['__dir']  = \dirname($fileName);
+            }
+        }
+
+        $this->context->setCommandScopeVariables($vars);
     }
 }

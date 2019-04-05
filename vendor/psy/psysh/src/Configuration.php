@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2018 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,56 +13,80 @@ namespace Psy;
 
 use Psy\Exception\DeprecatedException;
 use Psy\Exception\RuntimeException;
-use Psy\ExecutionLoop\ForkingLoop;
-use Psy\ExecutionLoop\Loop;
 use Psy\Output\OutputPager;
 use Psy\Output\ShellOutput;
 use Psy\Readline\GNUReadline;
+use Psy\Readline\HoaConsole;
 use Psy\Readline\Libedit;
 use Psy\Readline\Readline;
 use Psy\Readline\Transient;
 use Psy\TabCompletion\AutoCompleter;
 use Psy\VarDumper\Presenter;
-use XdgBaseDir\Xdg;
+use Psy\VersionUpdater\Checker;
+use Psy\VersionUpdater\GitHubChecker;
+use Psy\VersionUpdater\IntervalChecker;
+use Psy\VersionUpdater\NoopChecker;
 
 /**
  * The Psy Shell configuration.
  */
 class Configuration
 {
-    const COLOR_MODE_AUTO = 'auto';
-    const COLOR_MODE_FORCED = 'forced';
+    const COLOR_MODE_AUTO     = 'auto';
+    const COLOR_MODE_FORCED   = 'forced';
     const COLOR_MODE_DISABLED = 'disabled';
 
-    private static $AVAILABLE_OPTIONS = array(
-        'defaultIncludes', 'useReadline', 'usePcntl', 'codeCleaner', 'pager',
-        'loop', 'configDir', 'dataDir', 'runtimeDir', 'manualDbFile',
-        'requireSemicolons', 'useUnicode', 'historySize', 'eraseDuplicates',
-        'tabCompletion', 'errorLoggingLevel', 'warnOnMultipleConfigs',
+    private static $AVAILABLE_OPTIONS = [
+        'codeCleaner',
         'colorMode',
-    );
+        'configDir',
+        'dataDir',
+        'defaultIncludes',
+        'eraseDuplicates',
+        'errorLoggingLevel',
+        'forceArrayIndexes',
+        'historySize',
+        'manualDbFile',
+        'pager',
+        'prompt',
+        'requireSemicolons',
+        'runtimeDir',
+        'startupMessage',
+        'updateCheck',
+        'useBracketedPaste',
+        'usePcntl',
+        'useReadline',
+        'useTabCompletion',
+        'useUnicode',
+        'warnOnMultipleConfigs',
+    ];
 
     private $defaultIncludes;
     private $configDir;
     private $dataDir;
     private $runtimeDir;
     private $configFile;
+    /** @var string|false */
     private $historyFile;
     private $historySize;
     private $eraseDuplicates;
     private $manualDbFile;
     private $hasReadline;
     private $useReadline;
+    private $useBracketedPaste;
     private $hasPcntl;
     private $usePcntl;
-    private $newCommands = array();
+    private $newCommands       = [];
     private $requireSemicolons = false;
     private $useUnicode;
-    private $tabCompletion;
-    private $tabCompletionMatchers = array();
+    private $useTabCompletion;
+    private $newMatchers = [];
     private $errorLoggingLevel = E_ALL;
     private $warnOnMultipleConfigs = false;
     private $colorMode;
+    private $updateCheck;
+    private $startupMessage;
+    private $forceArrayIndexes = false;
 
     // services
     private $readline;
@@ -70,33 +94,34 @@ class Configuration
     private $shell;
     private $cleaner;
     private $pager;
-    private $loop;
     private $manualDb;
     private $presenter;
-    private $completer;
+    private $autoCompleter;
+    private $checker;
+    private $prompt;
 
     /**
      * Construct a Configuration instance.
      *
      * Optionally, supply an array of configuration values to load.
      *
-     * @param array $config Optional array of configuration values.
+     * @param array $config Optional array of configuration values
      */
-    public function __construct(array $config = array())
+    public function __construct(array $config = [])
     {
         $this->setColorMode(self::COLOR_MODE_AUTO);
 
         // explicit configFile option
         if (isset($config['configFile'])) {
             $this->configFile = $config['configFile'];
-        } elseif ($configFile = getenv('PSYSH_CONFIG')) {
+        } elseif ($configFile = \getenv('PSYSH_CONFIG')) {
             $this->configFile = $configFile;
         }
 
         // legacy baseDir option
         if (isset($config['baseDir'])) {
-            $msg = "The 'baseDir' configuration option is deprecated. " .
-                "Please specify 'configDir' and 'dataDir' options instead.";
+            $msg = "The 'baseDir' configuration option is deprecated; " .
+                "please specify 'configDir' and 'dataDir' options instead";
             throw new DeprecatedException($msg);
         }
 
@@ -120,8 +145,8 @@ class Configuration
     public function init()
     {
         // feature detection
-        $this->hasReadline = function_exists('readline');
-        $this->hasPcntl    = function_exists('pcntl_signal') && function_exists('posix_getpid');
+        $this->hasReadline = \function_exists('readline');
+        $this->hasPcntl    = \function_exists('pcntl_signal') && \function_exists('posix_getpid');
 
         if ($configFile = $this->getConfigFile()) {
             $this->loadConfigFile($configFile);
@@ -152,12 +177,12 @@ class Configuration
             return $this->configFile;
         }
 
-        $files = ConfigPaths::getConfigFiles(array('config.php', 'rc.php'), $this->configDir);
+        $files = ConfigPaths::getConfigFiles(['config.php', 'rc.php'], $this->configDir);
 
         if (!empty($files)) {
-            if ($this->warnOnMultipleConfigs && count($files) > 1) {
-                $msg = sprintf('Multiple configuration files found: %s. Using %s', implode($files, ', '), $files[0]);
-                trigger_error($msg, E_USER_NOTICE);
+            if ($this->warnOnMultipleConfigs && \count($files) > 1) {
+                $msg = \sprintf('Multiple configuration files found: %s. Using %s', \implode($files, ', '), $files[0]);
+                \trigger_error($msg, E_USER_NOTICE);
             }
 
             return $files[0];
@@ -174,9 +199,9 @@ class Configuration
      */
     public function getLocalConfigFile()
     {
-        $localConfig = getenv('PWD') . '/.psysh.php';
+        $localConfig = \getcwd() . '/.psysh.php';
 
-        if (@is_file($localConfig)) {
+        if (@\is_file($localConfig)) {
             return $localConfig;
         }
     }
@@ -190,16 +215,32 @@ class Configuration
     {
         foreach (self::$AVAILABLE_OPTIONS as $option) {
             if (isset($options[$option])) {
-                $method = 'set' . ucfirst($option);
+                $method = 'set' . \ucfirst($option);
                 $this->$method($options[$option]);
             }
         }
 
-        foreach (array('commands', 'tabCompletionMatchers', 'casters') as $option) {
+        // legacy `tabCompletion` option
+        if (isset($options['tabCompletion'])) {
+            $msg = '`tabCompletion` is deprecated; use `useTabCompletion` instead.';
+            @\trigger_error($msg, E_USER_DEPRECATED);
+
+            $this->setUseTabCompletion($options['tabCompletion']);
+        }
+
+        foreach (['commands', 'matchers', 'casters'] as $option) {
             if (isset($options[$option])) {
-                $method = 'add' . ucfirst($option);
+                $method = 'add' . \ucfirst($option);
                 $this->$method($options[$option]);
             }
+        }
+
+        // legacy `tabCompletionMatchers` option
+        if (isset($options['tabCompletionMatchers'])) {
+            $msg = '`tabCompletionMatchers` is deprecated; use `matchers` instead.';
+            @\trigger_error($msg, E_USER_DEPRECATED);
+
+            $this->addMatchers($options['tabCompletionMatchers']);
         }
     }
 
@@ -210,7 +251,7 @@ class Configuration
      * The config file may directly manipulate the configuration, or may return
      * an array of options which will be merged with the current configuration.
      *
-     * @throws \InvalidArgumentException if the config file returns a non-array result.
+     * @throws \InvalidArgumentException if the config file returns a non-array result
      *
      * @param string $file
      */
@@ -226,7 +267,7 @@ class Configuration
         $result = $load($this);
 
         if (!empty($result)) {
-            if (is_array($result)) {
+            if (\is_array($result)) {
                 $this->loadConfig($result);
             } else {
                 throw new \InvalidArgumentException('Psy Shell configuration must return an array of options');
@@ -239,7 +280,7 @@ class Configuration
      *
      * @param array $includes
      */
-    public function setDefaultIncludes(array $includes = array())
+    public function setDefaultIncludes(array $includes = [])
     {
         $this->defaultIncludes = $includes;
     }
@@ -251,7 +292,7 @@ class Configuration
      */
     public function getDefaultIncludes()
     {
-        return $this->defaultIncludes ?: array();
+        return $this->defaultIncludes ?: [];
     }
 
     /**
@@ -318,8 +359,8 @@ class Configuration
             $this->runtimeDir = ConfigPaths::getRuntimeDir();
         }
 
-        if (!is_dir($this->runtimeDir)) {
-            mkdir($this->runtimeDir, 0700, true);
+        if (!\is_dir($this->runtimeDir)) {
+            \mkdir($this->runtimeDir, 0700, true);
         }
 
         return $this->runtimeDir;
@@ -332,7 +373,7 @@ class Configuration
      */
     public function setHistoryFile($file)
     {
-        $this->historyFile = (string) $file;
+        $this->historyFile = ConfigPaths::touchFileWithMkdir($file);
     }
 
     /**
@@ -349,42 +390,22 @@ class Configuration
             return $this->historyFile;
         }
 
-        // Deprecation warning for incorrect psysh_history path.
-        // TODO: remove this before v0.8.0
-        $xdg = new Xdg();
-        $oldHistory = $xdg->getHomeConfigDir() . '/psysh_history';
-        if (@is_file($oldHistory)) {
-            $dir = $this->configDir ?: ConfigPaths::getCurrentConfigDir();
-            $newHistory = $dir . '/psysh_history';
-
-            $msg = sprintf(
-                "PsySH history file found at '%s'. Please delete it or move it to '%s'.",
-                strtr($oldHistory, '\\', '/'),
-                $newHistory
-            );
-            trigger_error($msg, E_USER_DEPRECATED);
-
-            return $this->historyFile = $oldHistory;
-        }
-
-        $files = ConfigPaths::getConfigFiles(array('psysh_history', 'history'), $this->configDir);
+        $files = ConfigPaths::getConfigFiles(['psysh_history', 'history'], $this->configDir);
 
         if (!empty($files)) {
-            if ($this->warnOnMultipleConfigs && count($files) > 1) {
-                $msg = sprintf('Multiple history files found: %s. Using %s', implode($files, ', '), $files[0]);
-                trigger_error($msg, E_USER_NOTICE);
+            if ($this->warnOnMultipleConfigs && \count($files) > 1) {
+                $msg = \sprintf('Multiple history files found: %s. Using %s', \implode($files, ', '), $files[0]);
+                \trigger_error($msg, E_USER_NOTICE);
             }
 
-            return $this->historyFile = $files[0];
+            $this->setHistoryFile($files[0]);
+        } else {
+            // fallback: create our own history file
+            $dir = $this->configDir ?: ConfigPaths::getCurrentConfigDir();
+            $this->setHistoryFile($dir . '/psysh_history');
         }
 
-        // fallback: create our own history file
-        $dir = $this->configDir ?: ConfigPaths::getCurrentConfigDir();
-        if (!is_dir($dir)) {
-            mkdir($dir, 0700, true);
-        }
-
-        return $this->historyFile = $dir . '/psysh_history';
+        return $this->historyFile;
     }
 
     /**
@@ -441,7 +462,7 @@ class Configuration
      */
     public function getTempFile($type, $pid)
     {
-        return tempnam($this->getRuntimeDir(), $type . '_' . $pid . '_');
+        return \tempnam($this->getRuntimeDir(), $type . '_' . $pid . '_');
     }
 
     /**
@@ -450,19 +471,19 @@ class Configuration
      * The pipe will be created inside the current temporary directory.
      *
      * @param string $type
-     * @param id     $pid
+     * @param int    $pid
      *
      * @return string Pipe name
      */
     public function getPipe($type, $pid)
     {
-        return sprintf('%s/%s_%s', $this->getRuntimeDir(), $type, $pid);
+        return \sprintf('%s/%s_%s', $this->getRuntimeDir(), $type, $pid);
     }
 
     /**
      * Check whether this PHP instance has Readline available.
      *
-     * @return bool True if Readline is available.
+     * @return bool True if Readline is available
      */
     public function hasReadline()
     {
@@ -485,7 +506,7 @@ class Configuration
      * If `setUseReadline` as been set to true, but Readline is not actually
      * available, this will return false.
      *
-     * @return bool True if the current Shell should use Readline.
+     * @return bool True if the current Shell should use Readline
      */
     public function useReadline()
     {
@@ -541,6 +562,8 @@ class Configuration
                 return 'Psy\Readline\GNUReadline';
             } elseif (Libedit::isSupported()) {
                 return 'Psy\Readline\Libedit';
+            } elseif (HoaConsole::isSupported()) {
+                return 'Psy\Readline\HoaConsole';
             }
         }
 
@@ -548,9 +571,47 @@ class Configuration
     }
 
     /**
+     * Enable or disable bracketed paste.
+     *
+     * Note that this only works with readline (not libedit) integration for now.
+     *
+     * @param bool $useBracketedPaste
+     */
+    public function setUseBracketedPaste($useBracketedPaste)
+    {
+        $this->useBracketedPaste = (bool) $useBracketedPaste;
+    }
+
+    /**
+     * Check whether to use bracketed paste with readline.
+     *
+     * When this works, it's magical. Tabs in pastes don't try to autcomplete.
+     * Newlines in paste don't execute code until you get to the end. It makes
+     * readline act like you'd expect when pasting.
+     *
+     * But it often (usually?) does not work. And when it doesn't, it just spews
+     * escape codes all over the place and generally makes things ugly :(
+     *
+     * If `useBracketedPaste` has been set to true, but the current readline
+     * implementation is anything besides GNU readline, this will return false.
+     *
+     * @return bool True if the shell should use bracketed paste
+     */
+    public function useBracketedPaste()
+    {
+        // For now, only the GNU readline implementation supports bracketed paste.
+        $supported = ($this->getReadlineClass() === 'Psy\Readline\GNUReadline');
+
+        return $supported && $this->useBracketedPaste;
+
+        // @todo mebbe turn this on by default some day?
+        // return isset($this->useBracketedPaste) ? ($supported && $this->useBracketedPaste) : $supported;
+    }
+
+    /**
      * Check whether this PHP instance has Pcntl available.
      *
-     * @return bool True if Pcntl is available.
+     * @return bool True if Pcntl is available
      */
     public function hasPcntl()
     {
@@ -573,7 +634,7 @@ class Configuration
      * If `setUsePcntl` has been set to true, but Pcntl is not actually
      * available, this will return false.
      *
-     * @return bool True if the current Shell should use Pcntl.
+     * @return bool True if the current Shell should use Pcntl
      */
     public function usePcntl()
     {
@@ -633,7 +694,7 @@ class Configuration
             return $this->useUnicode;
         }
 
-        // TODO: detect `chsh` != 65001 on Windows and return false
+        // @todo detect `chsh` != 65001 on Windows and return false
         return true;
     }
 
@@ -698,24 +759,44 @@ class Configuration
     /**
      * Enable or disable tab completion.
      *
-     * @param bool $tabCompletion
+     * @param bool $useTabCompletion
      */
-    public function setTabCompletion($tabCompletion)
+    public function setUseTabCompletion($useTabCompletion)
     {
-        $this->tabCompletion = (bool) $tabCompletion;
+        $this->useTabCompletion = (bool) $useTabCompletion;
+    }
+
+    /**
+     * @deprecated Call `setUseTabCompletion` instead
+     *
+     * @param bool $useTabCompletion
+     */
+    public function setTabCompletion($useTabCompletion)
+    {
+        $this->setUseTabCompletion($useTabCompletion);
     }
 
     /**
      * Check whether to use tab completion.
      *
-     * If `setTabCompletion` has been set to true, but readline is not actually
-     * available, this will return false.
+     * If `setUseTabCompletion` has been set to true, but readline is not
+     * actually available, this will return false.
      *
-     * @return bool True if the current Shell should use tab completion.
+     * @return bool True if the current Shell should use tab completion
+     */
+    public function useTabCompletion()
+    {
+        return isset($this->useTabCompletion) ? ($this->hasReadline && $this->useTabCompletion) : $this->hasReadline;
+    }
+
+    /**
+     * @deprecated Call `useTabCompletion` instead
+     *
+     * @return bool
      */
     public function getTabCompletion()
     {
-        return isset($this->tabCompletion) ? ($this->hasReadline && $this->tabCompletion) : $this->hasReadline;
+        return $this->useTabCompletion();
     }
 
     /**
@@ -774,14 +855,14 @@ class Configuration
      * If a string is supplied, a ProcOutputPager will be used which shells out
      * to the specified command.
      *
-     * @throws \InvalidArgumentException if $pager is not a string or OutputPager instance.
+     * @throws \InvalidArgumentException if $pager is not a string or OutputPager instance
      *
      * @param string|OutputPager $pager
      */
     public function setPager($pager)
     {
-        if ($pager && !is_string($pager) && !$pager instanceof OutputPager) {
-            throw new \InvalidArgumentException('Unexpected pager instance.');
+        if ($pager && !\is_string($pager) && !$pager instanceof OutputPager) {
+            throw new \InvalidArgumentException('Unexpected pager instance');
         }
 
         $this->pager = $pager;
@@ -798,10 +879,10 @@ class Configuration
     public function getPager()
     {
         if (!isset($this->pager) && $this->usePcntl()) {
-            if ($pager = ini_get('cli.pager')) {
-                // use the default pager (5.4+)
+            if ($pager = \ini_get('cli.pager')) {
+                // use the default pager
                 $this->pager = $pager;
-            } elseif ($less = exec('which less 2>/dev/null')) {
+            } elseif ($less = \exec('which less 2>/dev/null')) {
                 // check for the presence of less...
                 $this->pager = $less . ' -R -S -F -X';
             }
@@ -811,44 +892,13 @@ class Configuration
     }
 
     /**
-     * Set the Shell evaluation Loop service.
+     * Set the Shell AutoCompleter service.
      *
-     * @param Loop $loop
+     * @param AutoCompleter $autoCompleter
      */
-    public function setLoop(Loop $loop)
+    public function setAutoCompleter(AutoCompleter $autoCompleter)
     {
-        $this->loop = $loop;
-    }
-
-    /**
-     * Get a Shell evaluation Loop service instance.
-     *
-     * If none has been explicitly defined, this will create a new instance.
-     * If Pcntl is available and enabled, the new instance will be a ForkingLoop.
-     *
-     * @return Loop
-     */
-    public function getLoop()
-    {
-        if (!isset($this->loop)) {
-            if ($this->usePcntl()) {
-                $this->loop = new ForkingLoop($this);
-            } else {
-                $this->loop = new Loop($this);
-            }
-        }
-
-        return $this->loop;
-    }
-
-    /**
-     * Set the Shell autocompleter service.
-     *
-     * @param AutoCompleter $completer
-     */
-    public function setAutoCompleter(AutoCompleter $completer)
-    {
-        $this->completer = $completer;
+        $this->autoCompleter = $autoCompleter;
     }
 
     /**
@@ -858,34 +908,61 @@ class Configuration
      */
     public function getAutoCompleter()
     {
-        if (!isset($this->completer)) {
-            $this->completer = new AutoCompleter();
+        if (!isset($this->autoCompleter)) {
+            $this->autoCompleter = new AutoCompleter();
         }
 
-        return $this->completer;
+        return $this->autoCompleter;
     }
 
     /**
-     * Get user specified tab completion matchers for the AutoCompleter.
+     * @deprecated Nothing should be using this anymore
      *
      * @return array
      */
     public function getTabCompletionMatchers()
     {
-        return $this->tabCompletionMatchers;
+        return [];
     }
 
     /**
-     * Add additional tab completion matchers to the AutoCompleter.
+     * Add tab completion matchers to the AutoCompleter.
+     *
+     * This will buffer new matchers in the event that the Shell has not yet
+     * been instantiated. This allows the user to specify matchers in their
+     * config rc file, despite the fact that their file is needed in the Shell
+     * constructor.
+     *
+     * @param array $matchers
+     */
+    public function addMatchers(array $matchers)
+    {
+        $this->newMatchers = \array_merge($this->newMatchers, $matchers);
+        if (isset($this->shell)) {
+            $this->doAddMatchers();
+        }
+    }
+
+    /**
+     * Internal method for adding tab completion matchers. This will set any new
+     * matchers once a Shell is available.
+     */
+    private function doAddMatchers()
+    {
+        if (!empty($this->newMatchers)) {
+            $this->shell->addMatchers($this->newMatchers);
+            $this->newMatchers = [];
+        }
+    }
+
+    /**
+     * @deprecated Use `addMatchers` instead
      *
      * @param array $matchers
      */
     public function addTabCompletionMatchers(array $matchers)
     {
-        $this->tabCompletionMatchers = array_merge($this->tabCompletionMatchers, $matchers);
-        if (isset($this->shell)) {
-            $this->shell->addTabCompletionMatchers($this->tabCompletionMatchers);
-        }
+        $this->addMatchers($matchers);
     }
 
     /**
@@ -900,7 +977,7 @@ class Configuration
      */
     public function addCommands(array $commands)
     {
-        $this->newCommands = array_merge($this->newCommands, $commands);
+        $this->newCommands = \array_merge($this->newCommands, $commands);
         if (isset($this->shell)) {
             $this->doAddCommands();
         }
@@ -914,7 +991,7 @@ class Configuration
     {
         if (!empty($this->newCommands)) {
             $this->shell->addCommands($this->newCommands);
-            $this->newCommands = array();
+            $this->newCommands = [];
         }
     }
 
@@ -927,6 +1004,7 @@ class Configuration
     {
         $this->shell = $shell;
         $this->doAddCommands();
+        $this->doAddMatchers();
     }
 
     /**
@@ -953,11 +1031,11 @@ class Configuration
             return $this->manualDbFile;
         }
 
-        $files = ConfigPaths::getDataFiles(array('php_manual.sqlite'), $this->dataDir);
+        $files = ConfigPaths::getDataFiles(['php_manual.sqlite'], $this->dataDir);
         if (!empty($files)) {
-            if ($this->warnOnMultipleConfigs && count($files) > 1) {
-                $msg = sprintf('Multiple manual database files found: %s. Using %s', implode($files, ', '), $files[0]);
-                trigger_error($msg, E_USER_NOTICE);
+            if ($this->warnOnMultipleConfigs && \count($files) > 1) {
+                $msg = \sprintf('Multiple manual database files found: %s. Using %s', \implode($files, ', '), $files[0]);
+                \trigger_error($msg, E_USER_NOTICE);
             }
 
             return $this->manualDbFile = $files[0];
@@ -967,13 +1045,13 @@ class Configuration
     /**
      * Get a PHP manual database connection.
      *
-     * @return PDO
+     * @return \PDO
      */
     public function getManualDb()
     {
         if (!isset($this->manualDb)) {
             $dbFile = $this->getManualDbFile();
-            if (is_file($dbFile)) {
+            if (\is_file($dbFile)) {
                 try {
                     $this->manualDb = new \PDO('sqlite:' . $dbFile);
                 } catch (\PDOException $e) {
@@ -1007,7 +1085,7 @@ class Configuration
     public function getPresenter()
     {
         if (!isset($this->presenter)) {
-            $this->presenter = new Presenter($this->getOutput()->getFormatter());
+            $this->presenter = new Presenter($this->getOutput()->getFormatter(), $this->forceArrayIndexes());
         }
 
         return $this->presenter;
@@ -1049,13 +1127,13 @@ class Configuration
      */
     public function setColorMode($colorMode)
     {
-        $validColorModes = array(
+        $validColorModes = [
             self::COLOR_MODE_AUTO,
             self::COLOR_MODE_FORCED,
             self::COLOR_MODE_DISABLED,
-        );
+        ];
 
-        if (in_array($colorMode, $validColorModes)) {
+        if (\in_array($colorMode, $validColorModes)) {
             $this->colorMode = $colorMode;
         } else {
             throw new \InvalidArgumentException('invalid color mode: ' . $colorMode);
@@ -1070,5 +1148,160 @@ class Configuration
     public function colorMode()
     {
         return $this->colorMode;
+    }
+
+    /**
+     * Set an update checker service instance.
+     *
+     * @param Checker $checker
+     */
+    public function setChecker(Checker $checker)
+    {
+        $this->checker = $checker;
+    }
+
+    /**
+     * Get an update checker service instance.
+     *
+     * If none has been explicitly defined, this will create a new instance.
+     *
+     * @return Checker
+     */
+    public function getChecker()
+    {
+        if (!isset($this->checker)) {
+            $interval = $this->getUpdateCheck();
+            switch ($interval) {
+                case Checker::ALWAYS:
+                    $this->checker = new GitHubChecker();
+                    break;
+
+                case Checker::DAILY:
+                case Checker::WEEKLY:
+                case Checker::MONTHLY:
+                    $checkFile = $this->getUpdateCheckCacheFile();
+                    if ($checkFile === false) {
+                        $this->checker = new NoopChecker();
+                    } else {
+                        $this->checker = new IntervalChecker($checkFile, $interval);
+                    }
+                    break;
+
+                case Checker::NEVER:
+                    $this->checker = new NoopChecker();
+                    break;
+            }
+        }
+
+        return $this->checker;
+    }
+
+    /**
+     * Get the current update check interval.
+     *
+     * One of 'always', 'daily', 'weekly', 'monthly' or 'never'. If none is
+     * explicitly set, default to 'weekly'.
+     *
+     * @return string
+     */
+    public function getUpdateCheck()
+    {
+        return isset($this->updateCheck) ? $this->updateCheck : Checker::WEEKLY;
+    }
+
+    /**
+     * Set the update check interval.
+     *
+     * @throws \InvalidArgumentDescription if the update check interval is unknown
+     *
+     * @param string $interval
+     */
+    public function setUpdateCheck($interval)
+    {
+        $validIntervals = [
+            Checker::ALWAYS,
+            Checker::DAILY,
+            Checker::WEEKLY,
+            Checker::MONTHLY,
+            Checker::NEVER,
+        ];
+
+        if (!\in_array($interval, $validIntervals)) {
+            throw new \InvalidArgumentException('invalid update check interval: ' . $interval);
+        }
+
+        $this->updateCheck = $interval;
+    }
+
+    /**
+     * Get a cache file path for the update checker.
+     *
+     * @return string|false Return false if config file/directory is not writable
+     */
+    public function getUpdateCheckCacheFile()
+    {
+        $dir = $this->configDir ?: ConfigPaths::getCurrentConfigDir();
+
+        return ConfigPaths::touchFileWithMkdir($dir . '/update_check.json');
+    }
+
+    /**
+     * Set the startup message.
+     *
+     * @param string $message
+     */
+    public function setStartupMessage($message)
+    {
+        $this->startupMessage = $message;
+    }
+
+    /**
+     * Get the startup message.
+     *
+     * @return string|null
+     */
+    public function getStartupMessage()
+    {
+        return $this->startupMessage;
+    }
+
+    /**
+     * Set the prompt.
+     *
+     * @param string $prompt
+     */
+    public function setPrompt($prompt)
+    {
+        $this->prompt = $prompt;
+    }
+
+    /**
+     * Get the prompt.
+     *
+     * @return string
+     */
+    public function getPrompt()
+    {
+        return $this->prompt;
+    }
+
+    /**
+     * Get the force array indexes.
+     *
+     * @return bool
+     */
+    public function forceArrayIndexes()
+    {
+        return $this->forceArrayIndexes;
+    }
+
+    /**
+     * Set the force array indexes.
+     *
+     * @param bool $forceArrayIndexes
+     */
+    public function setForceArrayIndexes($forceArrayIndexes)
+    {
+        $this->forceArrayIndexes = $forceArrayIndexes;
     }
 }

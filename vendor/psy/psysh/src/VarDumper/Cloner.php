@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2018 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -37,6 +37,6 @@ class Cloner extends VarCloner
      */
     protected function castResource(Stub $stub, $isNested)
     {
-        return Caster::EXCLUDE_VERBOSE & $this->filter ? array() : parent::castResource($stub, $isNested);
+        return Caster::EXCLUDE_VERBOSE & $this->filter ? [] : parent::castResource($stub, $isNested);
     }
 }

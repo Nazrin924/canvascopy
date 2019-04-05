@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2018 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -21,6 +21,7 @@ class Transient implements Readline
     private $history;
     private $historySize;
     private $eraseDups;
+    private $stdin;
 
     /**
      * Transient Readline is always supported.
@@ -38,7 +39,7 @@ class Transient implements Readline
     public function __construct($historyFile = null, $historySize = 0, $eraseDups = false)
     {
         // don't do anything with the history file...
-        $this->history     = array();
+        $this->history     = [];
         $this->historySize = $historySize;
         $this->eraseDups   = $eraseDups;
     }
@@ -49,7 +50,7 @@ class Transient implements Readline
     public function addHistory($line)
     {
         if ($this->eraseDups) {
-            if (($key = array_search($line, $this->history)) !== false) {
+            if (($key = \array_search($line, $this->history)) !== false) {
                 unset($this->history[$key]);
             }
         }
@@ -57,13 +58,13 @@ class Transient implements Readline
         $this->history[] = $line;
 
         if ($this->historySize > 0) {
-            $histsize = count($this->history);
+            $histsize = \count($this->history);
             if ($histsize > $this->historySize) {
-                $this->history = array_slice($this->history, $histsize - $this->historySize);
+                $this->history = \array_slice($this->history, $histsize - $this->historySize);
             }
         }
 
-        $this->history = array_values($this->history);
+        $this->history = \array_values($this->history);
 
         return true;
     }
@@ -73,7 +74,7 @@ class Transient implements Readline
      */
     public function clearHistory()
     {
-        $this->history = array();
+        $this->history = [];
 
         return true;
     }
@@ -105,7 +106,7 @@ class Transient implements Readline
     {
         echo $prompt;
 
-        return rtrim(fgets($this->getStdin(), 1024));
+        return \rtrim(\fgets($this->getStdin()), "\n\r");
     }
 
     /**
@@ -134,10 +135,10 @@ class Transient implements Readline
     private function getStdin()
     {
         if (!isset($this->stdin)) {
-            $this->stdin = fopen('php://stdin', 'r');
+            $this->stdin = \fopen('php://stdin', 'r');
         }
 
-        if (feof($this->stdin)) {
+        if (\feof($this->stdin)) {
             throw new BreakException('Ctrl+D');
         }
 

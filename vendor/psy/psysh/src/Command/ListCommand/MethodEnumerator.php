@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2018 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -39,14 +39,15 @@ class MethodEnumerator extends Enumerator
             return;
         }
 
-        $showAll = $input->getOption('all');
-        $methods = $this->prepareMethods($this->getMethods($showAll, $reflector));
+        $showAll   = $input->getOption('all');
+        $noInherit = $input->getOption('no-inherit');
+        $methods   = $this->prepareMethods($this->getMethods($showAll, $reflector, $noInherit));
 
         if (empty($methods)) {
             return;
         }
 
-        $ret = array();
+        $ret = [];
         $ret[$this->getKindLabel($reflector)] = $methods;
 
         return $ret;
@@ -55,22 +56,28 @@ class MethodEnumerator extends Enumerator
     /**
      * Get defined methods for the given class or object Reflector.
      *
-     * @param bool       $showAll   Include private and protected methods.
+     * @param bool       $showAll   Include private and protected methods
      * @param \Reflector $reflector
+     * @param bool       $noInherit Exclude inherited methods
      *
      * @return array
      */
-    protected function getMethods($showAll, \Reflector $reflector)
+    protected function getMethods($showAll, \Reflector $reflector, $noInherit = false)
     {
-        $methods = array();
+        $className = $reflector->getName();
+
+        $methods = [];
         foreach ($reflector->getMethods() as $name => $method) {
+            if ($noInherit && $method->getDeclaringClass()->getName() !== $className) {
+                continue;
+            }
+
             if ($showAll || $method->isPublic()) {
                 $methods[$method->getName()] = $method;
             }
         }
 
-        // TODO: this should be natcasesort
-        ksort($methods);
+        \ksort($methods, SORT_NATURAL | SORT_FLAG_CASE);
 
         return $methods;
     }
@@ -85,15 +92,15 @@ class MethodEnumerator extends Enumerator
     protected function prepareMethods(array $methods)
     {
         // My kingdom for a generator.
-        $ret = array();
+        $ret = [];
 
         foreach ($methods as $name => $method) {
             if ($this->showItem($name)) {
-                $ret[$name] = array(
+                $ret[$name] = [
                     'name'  => $name,
                     'style' => $this->getVisibilityStyle($method),
                     'value' => $this->presentSignature($method),
-                );
+                ];
             }
         }
 
@@ -111,7 +118,7 @@ class MethodEnumerator extends Enumerator
     {
         if ($reflector->isInterface()) {
             return 'Interface Methods';
-        } elseif (method_exists($reflector, 'isTrait') && $reflector->isTrait()) {
+        } elseif (\method_exists($reflector, 'isTrait') && $reflector->isTrait()) {
             return 'Trait Methods';
         } else {
             return 'Class Methods';

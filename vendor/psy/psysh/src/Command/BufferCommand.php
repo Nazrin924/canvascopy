@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2018 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -30,10 +30,10 @@ class BufferCommand extends Command
     {
         $this
             ->setName('buffer')
-            ->setAliases(array('buf'))
-            ->setDefinition(array(
+            ->setAliases(['buf'])
+            ->setDefinition([
                 new InputOption('clear', '', InputOption::VALUE_NONE, 'Clear the current buffer.'),
-            ))
+            ])
             ->setDescription('Show (or clear) the contents of the code input buffer.')
             ->setHelp(
                 <<<'HELP'
@@ -68,10 +68,10 @@ HELP
      */
     protected function formatLines(array $lines, $type = 'return')
     {
-        $template = sprintf('<%s>%%s</%s>', $type, $type);
+        $template = \sprintf('<%s>%%s</%s>', $type, $type);
 
-        return array_map(function ($line) use ($template) {
-            return sprintf($template, $line);
+        return \array_map(function ($line) use ($template) {
+            return \sprintf($template, $line);
         }, $lines);
     }
 }

@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2018 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -39,9 +39,9 @@ class GlobalVariableEnumerator extends Enumerator
             return;
         }
 
-        return array(
+        return [
             'Global Variables' => $globals,
-        );
+        ];
     }
 
     /**
@@ -53,10 +53,10 @@ class GlobalVariableEnumerator extends Enumerator
     {
         global $GLOBALS;
 
-        $names = array_keys($GLOBALS);
-        natcasesort($names);
+        $names = \array_keys($GLOBALS);
+        \natcasesort($names);
 
-        $ret = array();
+        $ret = [];
         foreach ($names as $name) {
             $ret[$name] = $GLOBALS[$name];
         }
@@ -74,16 +74,16 @@ class GlobalVariableEnumerator extends Enumerator
     protected function prepareGlobals($globals)
     {
         // My kingdom for a generator.
-        $ret = array();
+        $ret = [];
 
         foreach ($globals as $name => $value) {
             if ($this->showItem($name)) {
                 $fname = '$' . $name;
-                $ret[$fname] = array(
+                $ret[$fname] = [
                     'name'  => $fname,
                     'style' => self::IS_GLOBAL,
                     'value' => $this->presentRef($value),
-                );
+                ];
             }
         }
 

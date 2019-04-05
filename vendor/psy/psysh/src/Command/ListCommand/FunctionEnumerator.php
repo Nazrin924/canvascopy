@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2018 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -25,7 +25,7 @@ class FunctionEnumerator extends Enumerator
     {
         // only list functions when no Reflector is present.
         //
-        // TODO: make a NamespaceReflector and pass that in for commands like:
+        // @todo make a NamespaceReflector and pass that in for commands like:
         //
         //     ls --functions Foo
         //
@@ -57,7 +57,7 @@ class FunctionEnumerator extends Enumerator
             return;
         }
 
-        $ret = array();
+        $ret = [];
         $ret[$label] = $functions;
 
         return $ret;
@@ -74,12 +74,12 @@ class FunctionEnumerator extends Enumerator
      */
     protected function getFunctions($type = null)
     {
-        $funcs = get_defined_functions();
+        $funcs = \get_defined_functions();
 
         if ($type) {
             return $funcs[$type];
         } else {
-            return array_merge($funcs['internal'], $funcs['user']);
+            return \array_merge($funcs['internal'], $funcs['user']);
         }
     }
 
@@ -92,18 +92,18 @@ class FunctionEnumerator extends Enumerator
      */
     protected function prepareFunctions(array $functions)
     {
-        natcasesort($functions);
+        \natcasesort($functions);
 
         // My kingdom for a generator.
-        $ret = array();
+        $ret = [];
 
         foreach ($functions as $name) {
             if ($this->showItem($name)) {
-                $ret[$name] = array(
+                $ret[$name] = [
                     'name'  => $name,
                     'style' => self::IS_FUNCTION,
                     'value' => $this->presentSignature($name),
-                );
+                ];
             }
         }
 

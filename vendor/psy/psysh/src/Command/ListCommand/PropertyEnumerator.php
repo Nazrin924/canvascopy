@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2018 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -40,13 +40,14 @@ class PropertyEnumerator extends Enumerator
         }
 
         $showAll    = $input->getOption('all');
-        $properties = $this->prepareProperties($this->getProperties($showAll, $reflector), $target);
+        $noInherit  = $input->getOption('no-inherit');
+        $properties = $this->prepareProperties($this->getProperties($showAll, $reflector, $noInherit), $target);
 
         if (empty($properties)) {
             return;
         }
 
-        $ret = array();
+        $ret = [];
         $ret[$this->getKindLabel($reflector)] = $properties;
 
         return $ret;
@@ -55,22 +56,28 @@ class PropertyEnumerator extends Enumerator
     /**
      * Get defined properties for the given class or object Reflector.
      *
-     * @param bool       $showAll   Include private and protected properties.
+     * @param bool       $showAll   Include private and protected properties
      * @param \Reflector $reflector
+     * @param bool       $noInherit Exclude inherited properties
      *
      * @return array
      */
-    protected function getProperties($showAll, \Reflector $reflector)
+    protected function getProperties($showAll, \Reflector $reflector, $noInherit = false)
     {
-        $properties = array();
+        $className = $reflector->getName();
+
+        $properties = [];
         foreach ($reflector->getProperties() as $property) {
+            if ($noInherit && $property->getDeclaringClass()->getName() !== $className) {
+                continue;
+            }
+
             if ($showAll || $property->isPublic()) {
                 $properties[$property->getName()] = $property;
             }
         }
 
-        // TODO: this should be natcasesort
-        ksort($properties);
+        \ksort($properties, SORT_NATURAL | SORT_FLAG_CASE);
 
         return $properties;
     }
@@ -85,16 +92,16 @@ class PropertyEnumerator extends Enumerator
     protected function prepareProperties(array $properties, $target = null)
     {
         // My kingdom for a generator.
-        $ret = array();
+        $ret = [];
 
         foreach ($properties as $name => $property) {
             if ($this->showItem($name)) {
                 $fname = '$' . $name;
-                $ret[$fname] = array(
+                $ret[$fname] = [
                     'name'  => $fname,
                     'style' => $this->getVisibilityStyle($property),
                     'value' => $this->presentValue($property, $target),
-                );
+                ];
             }
         }
 
@@ -112,7 +119,7 @@ class PropertyEnumerator extends Enumerator
     {
         if ($reflector->isInterface()) {
             return 'Interface Properties';
-        } elseif (method_exists($reflector, 'isTrait') && $reflector->isTrait()) {
+        } elseif (\method_exists($reflector, 'isTrait') && $reflector->isTrait()) {
             return 'Trait Properties';
         } else {
             return 'Class Properties';
@@ -147,9 +154,21 @@ class PropertyEnumerator extends Enumerator
      */
     protected function presentValue(\ReflectionProperty $property, $target)
     {
-        if (!is_object($target)) {
-            // TODO: figure out if there's a way to return defaults when target
-            // is a class/interface/trait rather than an object.
+        // If $target is a class, trait or interface (try to) get the default
+        // value for the property.
+        if (!\is_object($target)) {
+            try {
+                $refl = new \ReflectionClass($target);
+                $props = $refl->getDefaultProperties();
+                if (\array_key_exists($property->name, $props)) {
+                    $suffix = $property->isStatic() ? '' : ' <aside>(default)</aside>';
+
+                    return $this->presentRef($props[$property->name]) . $suffix;
+                }
+            } catch (\Exception $e) {
+                // Well, we gave it a shot.
+            }
+
             return '';
         }
 

@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2018 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -49,7 +49,7 @@ class ConfigPaths
     {
         $xdg = new Xdg();
 
-        return self::getDirNames(array($xdg->getHomeConfigDir()));
+        return self::getDirNames([$xdg->getHomeConfigDir()]);
     }
 
     /**
@@ -68,7 +68,7 @@ class ConfigPaths
     {
         $configDirs = self::getHomeConfigDirs();
         foreach ($configDirs as $configDir) {
-            if (@is_dir($configDir)) {
+            if (@\is_dir($configDir)) {
                 return $configDir;
             }
         }
@@ -86,7 +86,7 @@ class ConfigPaths
      */
     public static function getConfigFiles(array $names, $configDir = null)
     {
-        $dirs = ($configDir === null) ? self::getConfigDirs() : array($configDir);
+        $dirs = ($configDir === null) ? self::getConfigDirs() : [$configDir];
 
         return self::getRealFiles($dirs, $names);
     }
@@ -120,7 +120,7 @@ class ConfigPaths
      */
     public static function getDataFiles(array $names, $dataDir = null)
     {
-        $dirs = ($dataDir === null) ? self::getDataDirs() : array($dataDir);
+        $dirs = ($dataDir === null) ? self::getDataDirs() : [$dataDir];
 
         return self::getRealFiles($dirs, $names);
     }
@@ -136,29 +136,44 @@ class ConfigPaths
     {
         $xdg = new Xdg();
 
-        return $xdg->getRuntimeDir(false) . '/psysh';
+        \set_error_handler(['Psy\Exception\ErrorException', 'throwException']);
+
+        try {
+            // XDG doesn't really work on Windows, sometimes complains about
+            // permissions, sometimes tries to remove non-empty directories.
+            // It's a bit flaky. So we'll give this a shot first...
+            $runtimeDir = $xdg->getRuntimeDir(false);
+        } catch (\Exception $e) {
+            // Well. That didn't work. Fall back to a boring old folder in the
+            // system temp dir.
+            $runtimeDir = \sys_get_temp_dir();
+        }
+
+        \restore_error_handler();
+
+        return \strtr($runtimeDir, '\\', '/') . '/psysh';
     }
 
     private static function getDirNames(array $baseDirs)
     {
-        $dirs = array_map(function ($dir) {
-            return strtr($dir, '\\', '/') . '/psysh';
+        $dirs = \array_map(function ($dir) {
+            return \strtr($dir, '\\', '/') . '/psysh';
         }, $baseDirs);
 
         // Add ~/.psysh
-        if ($home = getenv('HOME')) {
-            $dirs[] = strtr($home, '\\', '/') . '/.psysh';
+        if ($home = \getenv('HOME')) {
+            $dirs[] = \strtr($home, '\\', '/') . '/.psysh';
         }
 
         // Add some Windows specific ones :)
-        if (defined('PHP_WINDOWS_VERSION_MAJOR')) {
-            if ($appData = getenv('APPDATA')) {
+        if (\defined('PHP_WINDOWS_VERSION_MAJOR')) {
+            if ($appData = \getenv('APPDATA')) {
                 // AppData gets preference
-                array_unshift($dirs, strtr($appData, '\\', '/') . '/PsySH');
+                \array_unshift($dirs, \strtr($appData, '\\', '/') . '/PsySH');
             }
 
-            $dir = strtr(getenv('HOMEDRIVE') . '/' . getenv('HOMEPATH'), '\\', '/') . '/.psysh';
-            if (!in_array($dir, $dirs)) {
+            $dir = \strtr(\getenv('HOMEDRIVE') . '/' . \getenv('HOMEPATH'), '\\', '/') . '/.psysh';
+            if (!\in_array($dir, $dirs)) {
                 $dirs[] = $dir;
             }
         }
@@ -168,16 +183,55 @@ class ConfigPaths
 
     private static function getRealFiles(array $dirNames, array $fileNames)
     {
-        $files = array();
+        $files = [];
         foreach ($dirNames as $dir) {
             foreach ($fileNames as $name) {
                 $file = $dir . '/' . $name;
-                if (@is_file($file)) {
+                if (@\is_file($file)) {
                     $files[] = $file;
                 }
             }
         }
 
         return $files;
+    }
+
+    /**
+     * Ensure that $file exists and is writable, make the parent directory if necessary.
+     *
+     * Generates E_USER_NOTICE error if either $file or its directory is not writable.
+     *
+     * @param string $file
+     *
+     * @return string|false Full path to $file, or false if file is not writable
+     */
+    public static function touchFileWithMkdir($file)
+    {
+        if (\file_exists($file)) {
+            if (\is_writable($file)) {
+                return $file;
+            }
+
+            \trigger_error(\sprintf('Writing to %s is not allowed.', $file), E_USER_NOTICE);
+
+            return false;
+        }
+
+        $dir = \dirname($file);
+
+        if (!\is_dir($dir)) {
+            // Just try making it and see if it works
+            @\mkdir($dir, 0700, true);
+        }
+
+        if (!\is_dir($dir) || !\is_writable($dir)) {
+            \trigger_error(\sprintf('Writing to %s is not allowed.', $dir), E_USER_NOTICE);
+
+            return false;
+        }
+
+        \touch($file);
+
+        return $file;
     }
 }

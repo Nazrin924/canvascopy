@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2018 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -24,7 +24,7 @@ use Psy\Command\Command;
 class CommandsMatcher extends AbstractMatcher
 {
     /** @var string[] */
-    protected $commands = array();
+    protected $commands = [];
 
     /**
      * CommandsMatcher constructor.
@@ -43,10 +43,10 @@ class CommandsMatcher extends AbstractMatcher
      */
     public function setCommands(array $commands)
     {
-        $names = array();
+        $names = [];
         foreach ($commands as $command) {
-            $names = array_merge(array($command->getName()), $names);
-            $names = array_merge($command->getAliases(), $names);
+            $names = \array_merge([$command->getName()], $names);
+            $names = \array_merge($command->getAliases(), $names);
         }
         $this->commands = $names;
     }
@@ -60,7 +60,7 @@ class CommandsMatcher extends AbstractMatcher
      */
     protected function isCommand($name)
     {
-        return in_array($name, $this->commands);
+        return \in_array($name, $this->commands);
     }
 
     /**
@@ -84,11 +84,11 @@ class CommandsMatcher extends AbstractMatcher
     /**
      * {@inheritdoc}
      */
-    public function getMatches(array $tokens, array $info = array())
+    public function getMatches(array $tokens, array $info = [])
     {
         $input = $this->getInput($tokens);
 
-        return array_filter($this->commands, function ($command) use ($input) {
+        return \array_filter($this->commands, function ($command) use ($input) {
             return AbstractMatcher::startsWith($input, $command);
         });
     }
@@ -98,8 +98,8 @@ class CommandsMatcher extends AbstractMatcher
      */
     public function hasMatched(array $tokens)
     {
-        /* $openTag */ array_shift($tokens);
-        $command = array_shift($tokens);
+        /* $openTag */ \array_shift($tokens);
+        $command = \array_shift($tokens);
 
         switch (true) {
             case self::tokenIs($command, self::T_STRING) &&

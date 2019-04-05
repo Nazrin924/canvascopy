@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2015 Justin Hileman
+ * (c) 2012-2018 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -11,26 +11,30 @@
 
 namespace Psy\Command\ListCommand;
 
+use Psy\VarDumper\Presenter;
 use Symfony\Component\Console\Input\InputInterface;
 
 /**
  * Trait Enumerator class.
+ *
+ * @deprecated Nothing should use this anymore
  */
 class TraitEnumerator extends Enumerator
 {
+    public function __construct(Presenter $presenter)
+    {
+        @\trigger_error('TraitEnumerator is no longer used', E_USER_DEPRECATED);
+        parent::__construct($presenter);
+    }
+
     /**
      * {@inheritdoc}
      */
     protected function listItems(InputInterface $input, \Reflector $reflector = null, $target = null)
     {
-        // bail early if current PHP doesn't know about traits.
-        if (!function_exists('trait_exists')) {
-            return;
-        }
-
         // only list traits when no Reflector is present.
         //
-        // TODO: make a NamespaceReflector and pass that in for commands like:
+        // @todo make a NamespaceReflector and pass that in for commands like:
         //
         //     ls --traits Foo
         //
@@ -45,15 +49,15 @@ class TraitEnumerator extends Enumerator
             return;
         }
 
-        $traits = $this->prepareTraits(get_declared_traits());
+        $traits = $this->prepareTraits(\get_declared_traits());
 
         if (empty($traits)) {
             return;
         }
 
-        return array(
+        return [
             'Traits' => $traits,
-        );
+        ];
     }
 
     /**
@@ -65,18 +69,18 @@ class TraitEnumerator extends Enumerator
      */
     protected function prepareTraits(array $traits)
     {
-        natcasesort($traits);
+        \natcasesort($traits);
 
         // My kingdom for a generator.
-        $ret = array();
+        $ret = [];
 
         foreach ($traits as $name) {
             if ($this->showItem($name)) {
-                $ret[$name] = array(
+                $ret[$name] = [
                     'name'  => $name,
                     'style' => self::IS_CLASS,
                     'value' => $this->presentSignature($name),
-                );
+                ];
             }
         }
 
