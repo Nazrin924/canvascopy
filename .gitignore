@@ -5,6 +5,10 @@ storage/*.txt
 public/testers.json
 cronlog.txt
 public/error_log
+.DS_Store
+*/.DS_Store
+*/*/.DS_Store
+*/*/*/.DS_Store
 # Mac webdav files
 ._*
 */._*
