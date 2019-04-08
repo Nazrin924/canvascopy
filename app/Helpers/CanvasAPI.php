@@ -94,9 +94,11 @@ class CanvasAPI {
      * @return boolean
      */
     public static function findUser($netid) {
+        \Log::info("In findUser method");
         $token = env("CVS_WS_TOKEN");
         $apiHost = env("CVS_WS_URL");
         $client = new Client();
+        try{
         $response = $client->request("GET", $apiHost."accounts/self/users", [
             'headers' => [
                 'Authorization' => 'Bearer ' . $token,
@@ -108,7 +110,14 @@ class CanvasAPI {
             ]
         ]);
         $results = json_decode($response->getBody(), true);
-
+        } catch (\GuzzleHttp\Exception\ServerException $e) {
+            \Log::info("Failed at findUser call $netid.") . $e->getResponse()->getStatusCode();
+        } catch(Exception $e) {
+            \Log::info("Failed at findUser call $netid.");
+            return false;
+            
+        }
+        
         if(isset($results[0]["id"])) {
             //dd($results);
             \Log::info("User $netid exists in Canvas.");
@@ -203,6 +212,7 @@ class CanvasAPI {
      * @return boolean
      */
     public static function createUser($firstName, $lastName,$email, $netid) {
+        \Log::info("In createUser method");
         $token = env("CVS_WS_TOKEN");
         $apiHost = env("CVS_WS_URL");
         // $realm = session()->get('realm'); // no access to realm when called from job
@@ -235,8 +245,11 @@ class CanvasAPI {
         }
 
         $client = new Client();
+        $index=null;
+        do{
         try {
-        $response = $client->request("POST", $apiHost."accounts/1/users", [
+            $tryAgain = false;
+            $response = $client->request("POST", $apiHost."accounts/1/users", [
             'headers' => [
                 'Authorization' => 'Bearer ' . $token,
                 'Accept'        => 'application/json',
@@ -248,18 +261,27 @@ class CanvasAPI {
                 'communication_channel[address]'   => $email,
                 'user[login_id]'      => $login_id,
                 'user[user_id]'       => $user_id,
-                'pseudonym[integration_id]'=> $integration_id,
+                'pseudonym[integration_id]'=> $integration_id.$index,
                 'user[status]'        => "active",
                 'pseudonym[authenication_provider_id]' => $authentication_provider_id,
                 'pseudonym[unique_id]' => $user_id,
-
             ]
-        ]);
-        $results = json_decode($response->getBody(), true);
+            ]);
+        } catch (\GuzzleHttp\Exception\ClientException $e) {
+            $tryAgain = false;
+            if (strpos($email, 'is already in use') !== false) {
+                $tryAgain = true;
+                $index=$index++;
+            }
         } catch(Exception $e) {
-          Log::error("Canvas failure in account creation");
+            $tryAgain = false;
+            \Log::info($e->getMessage());
+            \Log::info("Canvas failure in account creation");
           return false;
         }
+        } while($tryAgain);
+        \Log::info("Got here and response is : ".$response);
+        $results = json_decode($response->getBody(), true);
         
         \Log::info("CanvasAPI::createUser: ".$netid." was created successfully ");
 
