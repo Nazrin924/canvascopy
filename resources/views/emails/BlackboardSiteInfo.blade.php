@@ -12,27 +12,17 @@
 		</ul>
 
 		<p>To log into your new course, visit <a href="{{env('BB_URL')}}">{{env('BB_URL')}}.</a>
-			You should see your course listed on My Courses module in the section "Courses where you are: Instructor"</p>
+			You should see your course listed on the Dashboard.</p>
 
 		<p>Information on Canvas basics is available at:</p>
 
 		<a href="{{env('BB_BASICS_URL')}}">{{env('BB_BASICS_URL')}}</a>
 
-		<p>We recommend that you start with the &quot;Course Site Setup&quot;:</p>
+		<p>To add users to your course, please see Canvas guides at: </p>
 
-		<a href="{{env('SITE_SETUP_URL')}}">{{env('SITE_SETUP_URL')}}</a>
+		<a href="{{env('ADD_USERS_URL')}}">{{env('ADD_USERS_URL')}}</a>
 
-		<p>If you need to add another instructor to the course:</p>
-
-		<ol>
-			<li>In the Control Panel, click Users and Groups and then click Users.</li>
-			<li>Click Add Enrollments at the top left</li>
-			<li>Type User's Cornell NetID in the "Username" field - Do not click the "Browse" button</li>
-			<li>Select course role from the "Role" pull-down menu</li>
-			<li>Click Submit</li>
-		</ol>
-
-		<p>Please contact us at <a href="mailto:{{env('EMAIL_ADMIN')}}">{{env('EMAIL_ADMIN')}}</a> or call (607) 255-9760 if you experience any difficulties or require assistance.
+		<p>Please contact us at <a href="mailto:{{env('EMAIL_ADMIN')}}">{{env('EMAIL_ADMIN')}}</a> or call (607) 255-9760 if you have any questions regarding this course request.
 		</p>
 
 		<p>Thank you, </p>

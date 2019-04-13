@@ -278,7 +278,7 @@ class CanvasAPI {
      * @return boolean
      */
     public static function createCourse($courseId,$courseName,$netid) {
-        $params="accounts/51/courses?course[name]=".$courseName."&course[code]=".$courseId."&course[term_id]=46"."&course[is_public]=false";
+        $params="accounts/51/courses?course[name]=".$courseName."&course[code]=".$courseId."&course[term_id]=46"."&course[is_public]=false&blueprint_course_id=user-created-course-blueprint";
         //$results = apiCall('post', $params,$form_params[]);
         $results = (new self)->apiCall('post', $params);
         $enrolled = (new self)->enrollUser($netid, $results["id"]);
