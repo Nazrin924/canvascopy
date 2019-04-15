@@ -258,10 +258,10 @@ class CourseController extends Controller
       $exists = CanvasAPI::findCourse(
         htmlspecialchars(utf8_encode($confirmedCourse['courseIDReal']), ENT_QUOTES, 'UTF-8')
       );
+        \Log::info("Course exists:".$exists);
     } catch(Exception $e) {
       return view('blackboardError');
     }
-        \Log::info("Got here 1");
     if($exists) {
         session()->flash('txtCourseName',$confirmedCourse['courseName']);
         session()->flash('txtCourseID',$confirmedCourse['courseID']);
