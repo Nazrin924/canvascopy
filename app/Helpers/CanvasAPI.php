@@ -179,7 +179,7 @@ class CanvasAPI {
         ]);
         $results = json_decode($response->getBody(), true);
 
-        if(isset($results["id"])) {
+        if(isset($results[0]["id"])) {
             \Log::info("Course $courseId exists in Canvas.");
             return true;
         }
