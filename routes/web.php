@@ -88,6 +88,13 @@ Route::get('blackboardError', [
     }
 ]);
 
+Route::get('badCourseID', [
+    'as' => 'badCourseID',
+    function() {
+        return view('badCourseID');
+    }
+]);
+
 Route::group(["middleware" => "test"], function() {
     Route::get('debug', ['uses' => 'debugController@testSomething']);
     //Route::get('debug2', ['uses' => 'debugController@testSomething2']);
