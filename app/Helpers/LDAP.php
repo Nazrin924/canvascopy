@@ -117,7 +117,7 @@ class LDAP
                 $LastName  = "Cornell";
             }
 
-            //Log::info("According to LDAP, the Weill user's name is $FirstName $LastName with email $Email");
+            Log::info("According to LDAP, the Weill user's name is $FirstName $LastName with email $Email");
 
         }
 
