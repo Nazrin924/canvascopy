@@ -213,4 +213,47 @@ return [
 
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Debug blacklist
+    |--------------------------------------------------------------------------
+    |
+    | Keeping these sensitive variables out of the debug page.
+    |
+    */
+
+    'debug_blacklist' => [
+        '_ENV' => [
+            'APP_KEY',
+            'DB_DATABASE',
+            'DB_USERNAME',
+            'DB_PASSWORD',
+            'MAIL_HOST',
+            'MAIL_USERNAME',
+            'MAIL_PASSWORD',
+            'WEILL_LDAP',
+            'WEILL_PASS',
+            'BB_WS_USERNAME',
+            'BB_WS_PASSWORD',
+            'LDS_AD_USERNAME',
+            'LDS_AD_PASSWORD',
+            'MIX_PUSHER_APP_KEY',
+            'PUSHER_APP_KEY',
+            'PUSHER_APP_SECRET',
+            'CVS_WS_TOKEN',
+            'CVS_WS_URL',
+        ],
+        '_SERVER' => [
+            'APP_KEY',
+            'DB_PASSWORD',
+            'REDIS_PASSWORD',
+            'MAIL_PASSWORD',
+            'PUSHER_APP_KEY',
+            'PUSHER_APP_SECRET',
+        ],
+        '_POST' => [
+            'password',
+        ],
+    ],
+
 ];
