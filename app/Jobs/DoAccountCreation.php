@@ -98,10 +98,10 @@ class DoAccountCreation extends Job implements ShouldQueue
           return false;
         }
   		 //send out email to support if it's been over 5 hours.
-        Log::info("Attempts check: ". $this->attempts() . " compared with ".env('NUM_ATTEMPTS'));
+        //Log::info("Attempts check: ". $this->attempts() . " compared with ".env('NUM_ATTEMPTS'));
 
   		if($this->attempts() > env('NUM_ATTEMPTS')) {
-            Log::info("Got to the attempts checkup $attempts");
+            //Log::info("Got to the attempts checkup $attempts");
   			$netID = $this->netID;
             try {
         			 $mailer->send('emails.AccountFailed',
