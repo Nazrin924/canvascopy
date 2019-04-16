@@ -111,11 +111,11 @@ class CanvasAPI {
 
         if(isset($results[0]["id"])) {
             //dd($results);
-            //\Log::info("User $netid exists in Canvas.");
+            \Log::info("User $netid exists in Canvas.");
             return true;
         }
         else {
-            //\Log::info("Did not find $netid in Canvas. ");
+            \Log::info("Did not find $netid in Canvas. ");
             return false;
         }
 
@@ -215,10 +215,10 @@ class CanvasAPI {
             $login_id = $netid;
             $user_id=$netid;
             $authentication_provider_id=5;
-            //\Log::info("Cornell netid is ".$netid);
-            //\Log::info("Cornell integration_id is ".$integration_id);
-           // \Log::info("Cornell login_id is ".$login_id);
-            //\Log::info("Cornell user_id is ".$user_id);
+            \Log::info("Cornell netid is ".$netid);
+            \Log::info("Cornell integration_id is ".$integration_id);
+            \Log::info("Cornell login_id is ".$login_id);
+            \Log::info("Cornell user_id is ".$user_id);
         }else {
             //if(strpos($netid, '@wcmc')) {
             if (strpos($email, '@med.cornell.edu') !== false) {
@@ -227,10 +227,10 @@ class CanvasAPI {
                 //$user_id=$netid."@cumed";
                 $user_id=$netid;
                 $authentication_provider_id=41;
-                //\Log::info("Weill netid is ".$netid);
-                //\Log::info("Weill integration_id is ".$integration_id);
-                //\Log::info("Weill login_id is ".$login_id);
-                //\Log::info("Weill user_id is ".$user_id);
+                \Log::info("Weill netid is ".$netid);
+                \Log::info("Weill integration_id is ".$integration_id);
+                \Log::info("Weill login_id is ".$login_id);
+                \Log::info("Weill user_id is ".$user_id);
             }
         }
 
@@ -311,7 +311,6 @@ class CanvasAPI {
         } catch(Exception $e) {
             Log::error("Canvas failure in teacher enrollment");
         }
-        \Log::info("CanvasAPI::createCourse: ".$courseName." was created successfully ");
         return true;
         //return courseId;
     }
@@ -326,34 +325,12 @@ class CanvasAPI {
      * @return boolean
      */
     public static function enrollUser($netid, $courseId) {
-        $token = env("CVS_WS_TOKEN");
-        $apiHost = env("CVS_WS_URL");
-        $client = new Client();
         $userID=(new self)->getUserID($netid);
-        try {
-            $response = $client->request("POST", $apiHost."courses/".$courseId."/enrollments", [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $token,
-                    'Accept'        => 'application/json',
-                    'http_errors' => true,
-                ],
-                'form_params' => [
-                    'enrollment[user_id]'    => $userID,
-                    'enrollment[type]' =>  "TeacherEnrollment",
-                    'enrollment[enrollment_state]'   =>  "active",
-                    'enrollment[limit_privileges_to_course_section]'      =>  "false",
-                    'enrollment[notify]'       => "false",
-                ]
-            ]);
-            $results = json_decode($response->getBody(), true);
-        } catch(Exception $e) {
-            Log::error("Canvas failure in user enrollment");
-            return false;
-        }
-        //$params="courses/".$courseId."/enrollments?enrollment[user_id]=".$userID."&enrollment[type]=TeacherEnrollment&enrollment[enrollment_state]=active&enrollment[limit_privileges_to_course_section]=false&enrollment[notify]=false";
-       // $results = (new self)->apiCall('post', $params);
+        $params="courses/".$courseId."/enrollments?enrollment[user_id]=".$userID."&enrollment[type]=TeacherEnrollment&enrollment[enrollment_state]=active&enrollment[limit_privileges_to_course_section]=false&enrollment[notify]=false";
+        $results = (new self)->apiCall('post', $params);
         \Log::info("User $netid was enrolled as a teacher in course $courseId.");
         return true;
+        //return courseId;
 
     }
 

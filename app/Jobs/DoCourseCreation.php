@@ -52,6 +52,8 @@ class DoCourseCreation extends Job implements ShouldQueue
       $this->email = $email;
       $this->firstName = $firstName;
   		$this->realm = $realm;
+  		\Log::info("Course request for $courseName with courseID ".
+        "$courseID by netID $netID in realm $realm has been started.");
   	}
 
   	/**
@@ -60,6 +62,11 @@ class DoCourseCreation extends Job implements ShouldQueue
   	 * @return void
   	 */
   	public function handle(Mailer $mailer) {
+  		$attempts = $this->attempts();
+  		\Log::info("email to $this->netID for course ".
+        "$this->courseID on attempt $attempts");
+
+      \Log::info($this->courseID);
 
       try {
     		$course = CanvasAPI::createCourse(
@@ -102,7 +109,7 @@ class DoCourseCreation extends Job implements ShouldQueue
   		}
   		//Check if exists.
   		elseif($course != "true") {
-  			Log::info("Course creation failed because of ".$course);
+  			Log::info("Course creation failed because of".$course);
   			$this->release(100);
   		}
   		// course exists - send out email to client
