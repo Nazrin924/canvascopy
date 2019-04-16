@@ -90,7 +90,7 @@ class CanvasAPI {
      *
      * @param $netid
      *
-     * @throws \Exception
+     * @throws
      * @return boolean
      */
     public static function findUser($netid) {
@@ -110,7 +110,6 @@ class CanvasAPI {
         $results = json_decode($response->getBody(), true);
 
         if(isset($results[0]["id"])) {
-            //dd($results);
             //\Log::info("User $netid exists in Canvas.");
             return true;
         }
@@ -126,7 +125,7 @@ class CanvasAPI {
      *
      * @param $netid
      *
-     * @throws \Exception
+     * @throws
      * @return int
      */
     public static function getUserID($netid) {
@@ -159,7 +158,7 @@ class CanvasAPI {
      *
      * @param $courseId
      *
-     * @throws \Exception
+     * @throws
      * @return boolean
      */
 
@@ -199,38 +198,25 @@ class CanvasAPI {
      * @param $email
      * @param $netid
      *
-     * @throws \Exception
+     * @throws
      * @return boolean
      */
     public static function createUser($firstName, $lastName,$email, $netid) {
         $token = env("CVS_WS_TOKEN");
         $apiHost = env("CVS_WS_URL");
-        // $realm = session()->get('realm'); // no access to realm when called from job
         \Log::info("CanvasAPI::createUser was started for:".$netid);
-        //\Log::info((strpos($email, '@cornell.edu')));
-        //\Log::info((strpos($email, '@med.cornell.edu')));
-        // if($realm == env('CU_REALM')) {
         if (strpos($email, '@cornell.edu') !== false) {
             $integration_id = $netid . "-cornell-canvastools";
             $login_id = $netid;
             $user_id=$netid;
             $authentication_provider_id=5;
-            //\Log::info("Cornell netid is ".$netid);
-            //\Log::info("Cornell integration_id is ".$integration_id);
-           // \Log::info("Cornell login_id is ".$login_id);
-            //\Log::info("Cornell user_id is ".$user_id);
         }else {
-            //if(strpos($netid, '@wcmc')) {
             if (strpos($email, '@med.cornell.edu') !== false) {
                 $integration_id = $netid . "-cu_weill-canvastools";
                 $login_id = $email;
                 //$user_id=$netid."@cumed";
                 $user_id=$netid;
                 $authentication_provider_id=41;
-                //\Log::info("Weill netid is ".$netid);
-                //\Log::info("Weill integration_id is ".$integration_id);
-                //\Log::info("Weill login_id is ".$login_id);
-                //\Log::info("Weill user_id is ".$user_id);
             }
         }
 
@@ -260,11 +246,8 @@ class CanvasAPI {
           Log::error("Canvas failure in account creation");
           return false;
         }
-        
         \Log::info("CanvasAPI::createUser: ".$netid." was created successfully ");
-
         return true;
-
     }
 
 
@@ -273,8 +256,9 @@ class CanvasAPI {
      *
      * @param $courseId
      * @param $courseName
+     * @param $netid
      *
-     * @throws \Exception
+     * @throws
      * @return boolean
      */
     public static function createCourse($courseId,$courseName,$netid) {
@@ -298,10 +282,6 @@ class CanvasAPI {
                 ]
             ]);
             $results = json_decode($response->getBody(), true);
-
-            //$params="accounts/51/courses?course[name]=".$courseName."&course[course_code]=".$courseId."&course[integration_id]=".$courseId."-canvastools&course[term_id]=46"."&course[is_public]=false&blueprint_course_id=user-created-course-blueprint";
-            //$results = apiCall('post', $params,$form_params[]);
-            //$results = (new self)->apiCall('post', $params);
         } catch(Exception $e) {
             Log::error("Canvas failure in course creation");
             return false;
@@ -313,7 +293,6 @@ class CanvasAPI {
         }
         \Log::info("CanvasAPI::createCourse: ".$courseName." was created successfully ");
         return true;
-        //return courseId;
     }
 
     /**
@@ -322,7 +301,7 @@ class CanvasAPI {
      * @param $netid
      * @param $courseId
      *
-     * @throws \Exception
+     * @throws
      * @return boolean
      */
     public static function enrollUser($netid, $courseId) {
@@ -350,8 +329,6 @@ class CanvasAPI {
             Log::error("Canvas failure in user enrollment");
             return false;
         }
-        //$params="courses/".$courseId."/enrollments?enrollment[user_id]=".$userID."&enrollment[type]=TeacherEnrollment&enrollment[enrollment_state]=active&enrollment[limit_privileges_to_course_section]=false&enrollment[notify]=false";
-       // $results = (new self)->apiCall('post', $params);
         \Log::info("User $netid was enrolled as a teacher in course $courseId.");
         return true;
 
