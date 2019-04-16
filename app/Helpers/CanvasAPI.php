@@ -278,10 +278,39 @@ class CanvasAPI {
      * @return boolean
      */
     public static function createCourse($courseId,$courseName,$netid) {
-        $params="accounts/51/courses?course[name]=".$courseName."&course[course_code]=".$courseId."&course[integration_id]=".$courseId."-canvastools&course[term_id]=46"."&course[is_public]=false&blueprint_course_id=user-created-course-blueprint";
-        //$results = apiCall('post', $params,$form_params[]);
-        $results = (new self)->apiCall('post', $params);
-        $enrolled = (new self)->enrollUser($netid, $results["id"]);
+        $token = env("CVS_WS_TOKEN");
+        $apiHost = env("CVS_WS_URL");
+        $client = new Client();
+        try {
+            $response = $client->request("POST", $apiHost."accounts/51/courses", [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $token,
+                    'Accept'        => 'application/json',
+                    'http_errors' => true,
+                ],
+                'form_params' => [
+                    'course[name]'    => $courseName,
+                    'course[course_code]' => $courseId,
+                    'course[integration_id]'   => $courseId."-canvastools",
+                    'course[term_id]'      => 46,
+                    'course[is_public]'       => "false",
+                    'blueprint_course_id'=> "user-created-course-blueprint",
+                ]
+            ]);
+            $results = json_decode($response->getBody(), true);
+
+            //$params="accounts/51/courses?course[name]=".$courseName."&course[course_code]=".$courseId."&course[integration_id]=".$courseId."-canvastools&course[term_id]=46"."&course[is_public]=false&blueprint_course_id=user-created-course-blueprint";
+            //$results = apiCall('post', $params,$form_params[]);
+            //$results = (new self)->apiCall('post', $params);
+        } catch(Exception $e) {
+            Log::error("Canvas failure in course creation");
+            return false;
+        }
+        try {
+            $enrolled = (new self)->enrollUser($netid, $results["id"]);
+        } catch(Exception $e) {
+            Log::error("Canvas failure in teacher enrollment");
+        }
         return true;
         //return courseId;
     }
@@ -299,6 +328,7 @@ class CanvasAPI {
         $userID=(new self)->getUserID($netid);
         $params="courses/".$courseId."/enrollments?enrollment[user_id]=".$userID."&enrollment[type]=TeacherEnrollment&enrollment[enrollment_state]=active&enrollment[limit_privileges_to_course_section]=false&enrollment[notify]=false";
         $results = (new self)->apiCall('post', $params);
+        \Log::info("User $netid was enrolled as a teacher in course $courseId.");
         return true;
         //return courseId;
 
