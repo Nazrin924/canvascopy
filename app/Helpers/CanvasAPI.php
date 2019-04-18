@@ -386,7 +386,7 @@ class CanvasAPI {
         $client = new Client();
         $id = getCourseID($courseId);
         try {
-            $response = $client->request("POST", $apiHost."courses/541/blueprint_templates/default/update_associations", [
+            $response = $client->request("PUT", $apiHost."courses/541/blueprint_templates/default/update_associations", [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $token,
                     'Accept'        => 'application/json',
