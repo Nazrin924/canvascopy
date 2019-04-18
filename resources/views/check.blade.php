@@ -22,7 +22,6 @@
 						<p>Please confirm your course is NOT available for request in Faculty Center before
 							continuing. You can do so by visiting
 							<a target="_blank" href='{{env('FACULTY_CENTER_URL')}}'>{{env('FACULTY_CENTER_URL')}}</a>
-							.
 						</p>
 						<p>Any course site requested using this tool will not allow for managed student
 							enrollment. For instructions on creating a course with managed enrollment, visit
