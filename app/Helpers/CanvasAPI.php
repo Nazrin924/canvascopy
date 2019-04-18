@@ -384,7 +384,7 @@ class CanvasAPI {
         $token = env("CVS_WS_TOKEN");
         $apiHost = env("CVS_WS_URL");
         $client = new Client();
-        $id = getCourseID($courseId);
+        $id = (new self)->getCourseID($courseId);
         try {
             $response = $client->request("PUT", $apiHost."courses/541/blueprint_templates/default/update_associations", [
                 'headers' => [
