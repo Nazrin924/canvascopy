@@ -20,8 +20,7 @@
 					
 					<h2>Confirm Request</h2>
 					<p>The following request for a Canvas course site will be
-						processed. This process may take up to 4 hours to complete.
-						If the following request information is correct,
+						processed. If the following request information is correct,
 						click <em>confirm</em> to submit your request.
 						If you need to make changes, click <em>back</em> to edit your request.
 					</p>

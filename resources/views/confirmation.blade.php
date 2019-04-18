@@ -26,7 +26,7 @@
                 <li><strong>Course Name: {{$courseName}}</strong></li>
               </ul>
 
-              <p>Please note that this process may take a few hours.
+              <p>Your course will be available momentarily.
                 A confirmation email should be sent soon, and will include instructions on accessing Canvas.</p>
               <p>To log into your new course, point your browser to
                 <a target="_blank" href="{{env('BB_URL')}}">{{env('BB_URL')}}</a>
@@ -47,7 +47,8 @@
                  or call (607) 255-9760 if you have any questions regarding this course request.
 
               </p>
-              <p>Thank you,
+              <p>Thank you,</p>
+              <p>
                 {{env('DISPLAY_NAME')}}
               </p>
 

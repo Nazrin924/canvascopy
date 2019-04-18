@@ -37,7 +37,7 @@
 							</fieldset></form>
 
 						@endif
-						<p>Information about using Canvas@Cornell at Cornell can be found at: <a target="_blank" href='{{env('CVS_HELP_URL')}}'>{{env('CVS_HELP_URL')}}</a></p>
+						<p>Information about using Canvas@Cornell can be found at: <a target="_blank" href='{{env('CVS_HELP_URL')}}'>{{env('CVS_HELP_URL')}}</a></p>
 
 						@if(isset($isDebugger) && $isDebugger) @include("includes/testerMenu") @endif
 
