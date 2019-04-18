@@ -22,7 +22,7 @@
 					<p>The University expects that users of these services will in good
 						faith post material in compliance with copyright laws. If you have
 						questions about the use of any material, please send mail to
-						<a target="_blank" href='mailto:copyright@cornell.edu'>copyright@cornell.edu</a>.
+						<a target="_blank" href='mailto:copyright@cornell.edu'>copyright@cornell.edu</a>
 					</p>
 					<p class="panel fill accent-gold">To the best of my knowledge, I assert that all the
 						copyrighted material that I will post on this site will be
