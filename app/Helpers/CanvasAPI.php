@@ -151,7 +151,40 @@ class CanvasAPI {
             return 0;
         }
 
-    }    
+    }
+
+    /**
+     * getCourseID() - function to get Canvas course ID given a course code
+     *
+     * @param $course_code
+     *
+     * @throws
+     * @return int
+     */
+    public static function getCourseID($course_code) {
+        $token = env("CVS_WS_TOKEN");
+        $apiHost = env("CVS_WS_URL");
+        $client = new Client();
+        $response = $client->request("GET", $apiHost."accounts/1/courses", [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $token,
+                'Accept'        => 'application/json',
+                'http_errors' => true,
+            ],
+            'form_params' => [
+                'search_term'   => $course_code,
+            ]
+        ]);
+        $results = json_decode($response->getBody(), true);
+
+        if(isset($results[0]["id"])) {
+            return $results[0]["id"];
+        }
+        else {
+            return 0;
+        }
+
+    }
 
     /**
      * findCourse() - function to check if a course exists
@@ -291,6 +324,11 @@ class CanvasAPI {
         } catch(Exception $e) {
             Log::error("Canvas failure in teacher enrollment");
         }
+        try {
+            $blueprinted = (new self)->blueprintCourse($courseId);
+        } catch(Exception $e) {
+            Log::error("Canvas failure in associating $courseId with blueprint course");
+        }
         \Log::info("CanvasAPI::createCourse: ".$courseName." was created successfully ");
         return true;
     }
@@ -330,6 +368,40 @@ class CanvasAPI {
             return false;
         }
         \Log::info("User $netid was enrolled as a teacher in course $courseId.");
+        return true;
+
+    }
+
+    /**
+     * blueprintCourse() - function to enroll a given user in a given course
+     *
+     * @param $courseId
+     *
+     * @throws
+     * @return boolean
+     */
+    public static function blueprintCourse($courseId) {
+        $token = env("CVS_WS_TOKEN");
+        $apiHost = env("CVS_WS_URL");
+        $client = new Client();
+        $id = getCourseID($courseId);
+        try {
+            $response = $client->request("POST", $apiHost."courses/541/blueprint_templates/default/update_associations", [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $token,
+                    'Accept'        => 'application/json',
+                    'http_errors' => true,
+                ],
+                'form_params' => [
+                    'course_ids_to_add'    => $id,
+                ]
+            ]);
+            $results = json_decode($response->getBody(), true);
+        } catch(Exception $e) {
+            Log::error("Canvas failure in blueprint course association");
+            return false;
+        }
+        \Log::info("Course $courseId was associated as a blueprint course.");
         return true;
 
     }
