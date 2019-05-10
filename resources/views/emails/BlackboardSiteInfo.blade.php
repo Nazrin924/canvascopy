@@ -11,8 +11,8 @@
 			<li>Course Name: {{$courseName}}</li>
 		</ul>
 
-		<p>To log into your new course, visit <a href="{{env('BB_URL')}}">{{env('BB_URL')}}</a>
-			You should see your course listed on the Dashboard.</p>
+		<p>To log into your new course, visit <a href="{{env('BB_URL')}}">{{env('BB_URL')}}</a></p>
+		<p>You should see your course listed on the Dashboard.</p>
 
 		<p>Information on Canvas basics is available at:</p>
 
