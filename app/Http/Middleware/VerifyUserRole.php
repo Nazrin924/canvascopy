@@ -1,14 +1,11 @@
 <?php namespace App\Http\Middleware;
 
 use Closure;
-
 use \App\Helpers\LDAP;
-
 use \App\Helpers\CanvasAPI;
-
 use \App\Helpers\Testers;
-
 use App\User;
+use Illuminate\Support\Facades\Auth;
 
 use Log;
 use Redirect;
@@ -45,6 +42,7 @@ class VerifyUserRole
         }
         else{
 		    $netID = $request->headers->get('CUWA-REMOTE-USER');
+		    //$netID = $_SERVER['HTTP_CUWA_REMOTE_USER'];
 		    $realm = $request->headers->get('CUWA-REALM');
             if ($netID){
                 $user = User::where("name", $netID)->first();
@@ -58,6 +56,9 @@ class VerifyUserRole
                 }
                 $user->updated_at = now();
                 $user->update();    // update record to set time last login
+               if (!Auth::guard('web')->check()){
+                    Auth::guard('web')->login($user);
+               }
                }else{
                     Log::info("error no netid");
                }

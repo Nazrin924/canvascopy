@@ -5,6 +5,7 @@ use Laravel\Telescope\Http\Middleware\Authorize;
 
 return [
 
+    'domain' => null,
     'path' => 'admin_logs',
 
     /*

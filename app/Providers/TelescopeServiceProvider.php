@@ -6,7 +6,6 @@ use Laravel\Telescope\Telescope;
 use Illuminate\Support\Facades\Gate;
 use Laravel\Telescope\IncomingEntry;
 use Laravel\Telescope\TelescopeApplicationServiceProvider;
-
 class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
 {
     /**
@@ -53,11 +52,10 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
     protected function gate()
     {
         Gate::define('viewTelescope', function ($user) {
-            Log::info("Got into the gate");
             return in_array($user->email, [
-                'nst3@cornell.edu',
+                'nst37@cornell.edu',
+                'nazrin.tingstrom@cornell.edu',
             ]);
         });
-        
     }
 }

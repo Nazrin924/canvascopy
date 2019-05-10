@@ -87,3 +87,9 @@ Stack trace:
 [05-Feb-2019 15:22:30 UTC] PHP Fatal error:  Out of memory (allocated 260780032) (tried to allocate 20480 bytes) in phar:///usr/local/bin/composer/src/Composer/Console/Application.php on line 80
 [05-Feb-2019 15:23:43 UTC] PHP Fatal error:  Cannot declare class CreateJobsTable, because the name is already in use in /home/canvasdev/public_html/canvasrequest/database/migrations/2018_09_05_171733_create_jobs_table.php on line 37
 [05-Feb-2019 15:29:23 UTC] PHP Fatal error:  Cannot declare class CreateJobsTable, because the name is already in use in /home/canvasdev/public_html/canvasrequest/database/migrations/2018_09_05_171733_create_jobs_table.php on line 37
+[29-Apr-2019 14:52:31 UTC] PHP Deprecated:  Methods with the same name as their class will not be constructors in a future version of PHP; Log has a deprecated constructor in /home/canvasdev/public_html/canvasrequest/_ide_helper.php on line 6023
+[29-Apr-2019 14:52:31 UTC] PHP Fatal error:  Constructor Log::log() cannot be static in /home/canvasdev/public_html/canvasrequest/_ide_helper.php on line 6023
+[08-May-2019 08:53:06 UTC] PHP Deprecated:  Methods with the same name as their class will not be constructors in a future version of PHP; Log has a deprecated constructor in /home/canvasdev/public_html/canvasrequest/_ide_helper.php on line 6023
+[08-May-2019 08:53:06 UTC] PHP Fatal error:  Constructor Log::log() cannot be static in /home/canvasdev/public_html/canvasrequest/_ide_helper.php on line 6023
+[10-May-2019 15:23:06 UTC] PHP Deprecated:  Methods with the same name as their class will not be constructors in a future version of PHP; Log has a deprecated constructor in /home/canvasdev/public_html/canvasrequest/_ide_helper.php on line 6023
+[10-May-2019 15:23:06 UTC] PHP Fatal error:  Constructor Log::log() cannot be static in /home/canvasdev/public_html/canvasrequest/_ide_helper.php on line 6023
