@@ -241,13 +241,13 @@ class CanvasAPI {
         //\Log::info("CanvasAPI::createUser was started for:".$netid);
         if (strpos($email, '@cornell.edu') !== false) {
             $integration_id = $netid . "-cornell-canvastools";
-            //$login_id = $netid;
+            $login_id = $netid;
             $user_id=$netid;
             $authentication_provider_id=5;
         }else {
             if (strpos($email, '@med.cornell.edu') !== false) {
                 $integration_id = $netid . "-cu_weill-canvastools";
-                //$login_id = $email;
+                $login_id = $email;
                 $user_id=$netid;
                 $authentication_provider_id=41;
             }
@@ -269,7 +269,7 @@ class CanvasAPI {
                 'pseudonym[integration_id]'=> $integration_id,
                 'user[status]'        => "active",
                 'pseudonym[authenication_provider_id]' => $authentication_provider_id,
-                'pseudonym[unique_id]' => $user_id,
+                'pseudonym[unique_id]' => $login_id,
 
             ]
         ]);
