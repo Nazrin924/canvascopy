@@ -108,13 +108,14 @@ class CanvasAPI {
             ]
         ]);
         $results = json_decode($response->getBody(), true);
+        
 
         if(isset($results[0]["id"])) {
-            //\Log::info("User $netid exists in Canvas.");
+        \Log::info("CanvasAPI::findUser - this method was called and $netid exists in Canvas");
             return true;
         }
         else {
-            //\Log::info("Did not find $netid in Canvas. ");
+        \Log::info("CanvasAPI::findUser - this method was called and $netid does not exist in Canvas");
             return false;
         }
 
@@ -212,11 +213,11 @@ class CanvasAPI {
         $results = json_decode($response->getBody(), true);
 
         if(isset($results[0]["id"])) {
-            \Log::info("Course $courseId exists in Canvas.");
+            \Log::info("CanvasAPI::findCourse - this method was called and $courseId exists in Canvas");
             return true;
         }
         else {
-            \Log::info("Did not find course $courseId in Canvas.");
+            \Log::info("CanvasAPI::findCourse - this method was called and $courseId does not exist in Canvas");
             return false;
         }
 
@@ -237,7 +238,7 @@ class CanvasAPI {
     public static function createUser($firstName, $lastName,$email, $netid) {
         $token = env("CVS_WS_TOKEN");
         $apiHost = env("CVS_WS_URL");
-        \Log::info("CanvasAPI::createUser was started for:".$netid);
+        //\Log::info("CanvasAPI::createUser was started for:".$netid);
         if (strpos($email, '@cornell.edu') !== false) {
             $integration_id = $netid . "-cornell-canvastools";
             //$login_id = $netid;
@@ -277,7 +278,7 @@ class CanvasAPI {
           Log::error("Canvas failure in account creation");
           return false;
         }
-        \Log::info("CanvasAPI::createUser: ".$netid." was created successfully ");
+        //\Log::info("CanvasAPI::createUser: ".$netid." was created successfully ");
         return true;
     }
 
@@ -327,7 +328,7 @@ class CanvasAPI {
         } catch(Exception $e) {
             Log::error("Canvas failure in associating $courseId with blueprint course");
         }
-        \Log::info("CanvasAPI::createCourse: ".$courseName." was created successfully ");
+        //\Log::info("CanvasAPI::createCourse: ".$courseName." was created successfully ");
         return true;
     }
 

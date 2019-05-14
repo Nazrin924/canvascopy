@@ -62,11 +62,10 @@ class DoAccountCreation extends Job implements ShouldQueue
   	 public function handle(Mailer $mailer)
   	{
   		$attempts = $this->attempts();
-  		Log::info("email to $this->firstName for account ". "$this->netID on attempt $attempts");
   		// Create account
   		try {
     		if(CanvasAPI::findUser($this->netID)) {
-    			 Log::info("$this->netID already has an account");
+    			 Log::info("CanvasAPI::createUser - the account for $this->netID was created");
                  $netID = $this->netID;
                  //Adding emailing here
                  Mail::send('emails.AccountCreated',
@@ -82,6 +81,7 @@ class DoAccountCreation extends Job implements ShouldQueue
                             ->subject("Canvas@Cornell User Account");
                      }
                 );
+                Log::info("CanvasAPI::createUser - an email informing $this->netID about user account creation was sent");
     			$this->delete();
     			return;
     		}
