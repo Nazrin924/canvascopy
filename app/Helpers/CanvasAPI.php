@@ -109,8 +109,9 @@ class CanvasAPI {
         ]);
         $results = json_decode($response->getBody(), true);
         
-
-        if(isset($results[0]["id"])) {
+// Checking login id to see if it matches the given netid since the API calls returns partial matches too so we need to confirm that it is an exact match.
+// Login ids for Weill are emails so we need to match the login id and netid@med.cornell.edu
+        if(isset($results[0]["login_id"]) && ($results[0]["login_id"] ==$netid || $results[0]["login_id"]==str_replace("@cumed", "", $netid).'@med.cornell.edu')) {
         \Log::info("CanvasAPI::findUser - this method was called and $netid exists in Canvas");
             return true;
         }
@@ -144,8 +145,10 @@ class CanvasAPI {
             ]
         ]);
         $results = json_decode($response->getBody(), true);
-
-        if(isset($results[0]["id"])) {
+        
+// Checking login id to see if it matches the given netid since the API calls returns partial matches too so we need to confirm that it is an exact match.
+// Login ids for Weill are emails so we need to match the login id and netid@med.cornell.edu
+        if(isset($results[0]["login_id"]) && ($results[0]["login_id"] ==$netid || $results[0]["login_id"]==str_replace("@cumed", "", $netid).'@med.cornell.edu')) {
             return $results[0]["id"];
         }
         else {
