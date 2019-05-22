@@ -97,6 +97,7 @@ class CanvasAPI {
         $token = env("CVS_WS_TOKEN");
         $apiHost = env("CVS_WS_URL");
         $client = new Client();
+        $userCheck=false;
         $response = $client->request("GET", $apiHost."accounts/self/users", [
             'headers' => [
                 'Authorization' => 'Bearer ' . $token,
@@ -111,7 +112,12 @@ class CanvasAPI {
         
 // Checking login id to see if it matches the given netid since the API calls returns partial matches too so we need to confirm that it is an exact match.
 // Login ids for Weill are emails so we need to match the login id and netid@med.cornell.edu
-        if(isset($results[0]["login_id"]) && ($results[0]["login_id"] ==$netid || $results[0]["login_id"]==str_replace("@cumed", "", $netid).'@med.cornell.edu')) {
+    for($i = 0; $i < count($results); $i++) {
+        if(isset($results[$i]["login_id"]) && ($results[$i]["login_id"] ==$netid || $results[$i]["login_id"]==str_replace("@cumed", "", $netid).'@med.cornell.edu')) {
+            $userCheck=true;
+        }
+    }
+    if($userCheck){
         \Log::info("CanvasAPI::findUser - this method was called and $netid exists in Canvas");
             return true;
         }
@@ -119,7 +125,6 @@ class CanvasAPI {
         \Log::info("CanvasAPI::findUser - this method was called and $netid does not exist in Canvas");
             return false;
         }
-
     }
 
     /**
@@ -134,6 +139,7 @@ class CanvasAPI {
         $token = env("CVS_WS_TOKEN");
         $apiHost = env("CVS_WS_URL");
         $client = new Client();
+        $userID=0;
         $response = $client->request("GET", $apiHost."accounts/self/users", [
             'headers' => [
                 'Authorization' => 'Bearer ' . $token,
@@ -148,13 +154,17 @@ class CanvasAPI {
         
 // Checking login id to see if it matches the given netid since the API calls returns partial matches too so we need to confirm that it is an exact match.
 // Login ids for Weill are emails so we need to match the login id and netid@med.cornell.edu
-        if(isset($results[0]["login_id"]) && ($results[0]["login_id"] ==$netid || $results[0]["login_id"]==str_replace("@cumed", "", $netid).'@med.cornell.edu')) {
-            return $results[0]["id"];
+        for($i = 0; $i < count($results); $i++) {
+            if(isset($results[$i]["login_id"]) && ($results[$i]["login_id"] ==$netid || $results[$i]["login_id"]==str_replace("@cumed", "", $netid).'@med.cornell.edu')) {
+                $userID=$results[0]["id"];
+            }
         }
-        else {
-            return 0;
-        }
-
+        if($userID!=0){
+                return $results[0]["id"];
+            }
+            else {
+                return 0;
+            }
     }
 
     /**
