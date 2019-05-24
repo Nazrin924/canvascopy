@@ -26,8 +26,7 @@
                 <li><strong>Course Name: {{$courseName}}</strong></li>
               </ul>
 
-              <p>Your course will be available momentarily.
-                A confirmation email should be sent soon, and will include instructions on accessing Canvas.</p>
+              <p>You will be notified when your request has been processed, typically within 30 minutes. The confirmation email will include instructions on accessing Canvas.</p>
               <p>To log into your new course, point your browser to
                 <a target="_blank" href="{{env('BB_URL')}}">{{env('BB_URL')}}</a>
                 and login.
