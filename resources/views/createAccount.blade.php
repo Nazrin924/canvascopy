@@ -46,8 +46,8 @@
 				</fieldset>
 			</form>
 		@else
-			<h2>Your request has been successfully submitted.</h2>
-			<p>You will be notified when your request has been processed, typically within 30 minutes. A confirmation email will be sent to: {{$email}}.
+			<h2>Your request has been successfully completed.</h2>
+			<p>A confirmation email has been sent to: {{$email}}.
 			</p>
 			<p>To access Canvas@Cornell, visit <a target="_blank" href='{{env('BB_URL')}}'>{{env('BB_URL')}}</a>
 				and log in with your Cornell credentials.
