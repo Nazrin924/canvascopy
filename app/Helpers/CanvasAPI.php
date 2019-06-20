@@ -113,7 +113,7 @@ class CanvasAPI {
 // Checking login id to see if it matches the given netid since the API calls returns partial matches too so we need to confirm that it is an exact match.
 // Login ids for Weill are emails so we need to match the login id and netid@med.cornell.edu
     for($i = 0; $i < count($results); $i++) {
-        if(isset($results[$i]["login_id"]) && ($results[$i]["login_id"] ==$netid || $results[$i]["login_id"]==str_replace("@cumed", "", $netid).'@med.cornell.edu')) {
+        if(isset($results[$i]["login_id"]) && ($results[$i]["login_id"] ==$netid || $results[$i]["login_id"]==str_replace("@cumed", "", $netid).'@med.cornell.edu' || $results[$i]["login_id"]==str_replace("@cumed", "", $netid).'@qatar-med.cornell.edu')) {
             $userCheck=true;
         }
     }
@@ -155,7 +155,7 @@ class CanvasAPI {
 // Checking login id to see if it matches the given netid since the API calls returns partial matches too so we need to confirm that it is an exact match.
 // Login ids for Weill are emails so we need to match the login id and netid@med.cornell.edu
         for($i = 0; $i < count($results); $i++) {
-            if(isset($results[$i]["login_id"]) && ($results[$i]["login_id"] ==$netid || $results[$i]["login_id"]==str_replace("@cumed", "", $netid).'@med.cornell.edu')) {
+            if(isset($results[$i]["login_id"]) && ($results[$i]["login_id"] ==$netid || $results[$i]["login_id"]==str_replace("@cumed", "", $netid).'@med.cornell.edu' || $results[$i]["login_id"]==str_replace("@cumed", "", $netid).'@qatar-med.cornell.edu')) {
                 $userID=$results[0]["id"];
             }
         }
@@ -252,18 +252,16 @@ class CanvasAPI {
         $token = env("CVS_WS_TOKEN");
         $apiHost = env("CVS_WS_URL");
         //\Log::info("CanvasAPI::createUser was started for:".$netid);
-        if (strpos($email, '@cornell.edu') !== false) {
+        if (strpos($email, 'med.cornell.edu') !== false) {
+            $integration_id = $netid . "-cu_weill-canvastools";
+            $login_id = $email;
+            $user_id=$netid;
+            $authentication_provider_id=41;
+        }else {
             $integration_id = $netid . "-cornell-canvastools";
             $login_id = $netid;
             $user_id=$netid;
             $authentication_provider_id=5;
-        }else {
-            if (strpos($email, '@med.cornell.edu') !== false) {
-                $integration_id = $netid . "-cu_weill-canvastools";
-                $login_id = $email;
-                $user_id=$netid;
-                $authentication_provider_id=41;
-            }
         }
 
         $client = new Client();
