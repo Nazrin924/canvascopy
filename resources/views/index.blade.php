@@ -30,7 +30,7 @@
 									@if($canCreateSite)<br /> @endif
 								@endif
 								@if($canCreateSite)
-
+                                <p class="panel accent-red fill">You already have a Canvas account. To log into Canvas go to <a href="https://canvas.cornell.edu">https://canvas.cornell.edu</a></p>
 								<input type="submit" value="Create a Canvas course site"
 									onclick="location = 'createCourse'; return false;"></a>
 								@endif
