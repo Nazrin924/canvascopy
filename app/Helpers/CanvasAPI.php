@@ -279,7 +279,7 @@ class CanvasAPI {
                 'pseudonym[sis_user_id]'      => $user_id,
                 'pseudonym[integration_id]'=> $integration_id,
                 'user[status]'        => "active",
-                'pseudonym[authenication_provider_id]' => $authentication_provider_id,
+                'pseudonym[authentication_provider_id]' => $authentication_provider_id,
                 'pseudonym[unique_id]' => $login_id,
 
             ]
