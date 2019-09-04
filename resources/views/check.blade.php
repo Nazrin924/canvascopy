@@ -19,7 +19,8 @@
 				<article>
 
 					<h2>Welcome <span style="color: blue;">{{$name}}</span>.</h2>
-						<p>This request form can be used to create courses for Research or Independent study. All other course offerings are automatically created in Canvas each semester. Please login at <a target="_blank" href='{{env('BB_URL')}}'>canvas.cornell.edu</a> to verify if your course has already been created.
+						<p>This request form can be used to create courses for Research or Independent study. All other course offerings are automatically created in Canvas each semester. </p>
+						<p>Please login at <a target="_blank" href='{{env('BB_URL')}}'>canvas.cornell.edu</a> to verify if your course has already been created.
 						</p>
 						<p>Any course site requested using this tool will not allow for managed student
 							enrollment. For instructions on creating a course with managed enrollment, visit
