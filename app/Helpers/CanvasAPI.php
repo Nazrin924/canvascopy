@@ -266,7 +266,7 @@ class CanvasAPI {
             $authentication_provider_id=5;
             $realm="A.WCMC-AD.NET";
         }
-       // $data = LDAP::data($netid, $realm);
+        $data = LDAP::data($netid, $realm);
         $client = new Client();
         try {
         $response = $client->request("POST", $apiHost."accounts/1/users", [
