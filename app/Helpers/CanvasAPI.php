@@ -2,6 +2,7 @@
 namespace App\Helpers;
 
 use GuzzleHttp\Client;
+use \App\Helpers\LDAP;
 
 /**
  * A helper class for dealing with Canvas WebServices
@@ -257,13 +258,15 @@ class CanvasAPI {
             $login_id = $email;
             $user_id=$netid;
             $authentication_provider_id=41;
+            $realm="CIT.CORNELL.EDU";
         }else {
             $integration_id = $netid . "-cornell-canvastools";
             $login_id = $netid;
             $user_id=$netid;
             $authentication_provider_id=5;
+            $realm="A.WCMC-AD.NET";
         }
-
+        $data = LDAP::data($netid, $realm);
         $client = new Client();
         try {
         $response = $client->request("POST", $apiHost."accounts/1/users", [
@@ -276,7 +279,7 @@ class CanvasAPI {
                 'user[name]'    => $firstName.' '.$lastName,
                 'communication_channel[type]' => "email",
                 'communication_channel[address]'   => $email,
-                'pseudonym[sis_user_id]'      => $user_id,
+                'pseudonym[sis_user_id]'      => $data["emplid"],
                 'pseudonym[integration_id]'=> $integration_id,
                 'user[status]'        => "active",
                 'pseudonym[authentication_provider_id]' => $authentication_provider_id,
