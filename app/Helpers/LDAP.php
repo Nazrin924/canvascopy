@@ -24,8 +24,7 @@ class LDAP
             'firstname'=>"",
             'lastname'=>"",
             'email'=>"",
-            'canCreateSite'=>"",
-            'emplid'=>""
+            'canCreateSite'=>""
         );
         $Email = "";
         if ($ds && $realm == env('CU_REALM'))
@@ -51,12 +50,6 @@ class LDAP
             }
             if(isset($info[0]) && isset($info[0]["mail"])) {
                 $Email = $info[0]["mail"][0];
-            }
-            else {
-                $Email = "";
-            }
-            if(isset($info[0]) && isset($info[0]["cornelleduemplid"])) {
-                $emplid = $info[0]["cornelleduemplid"][0];
             }
             else {
                 $Email = "";
@@ -117,13 +110,6 @@ class LDAP
             else {
                 $Email = "";
             }
-            if(isset($info[0]) && isset($info[0]["cornelleduemplid"])) {
-                $emplid = $info[0]["cornelleduemplid"][0];
-            }
-            else {
-                $emplid= "";
-            }
-
             $college = "";
             //Determine if they're worthy of creating a course
             $canCreateCourse = true;
@@ -142,8 +128,7 @@ class LDAP
                 'firstname'=>$FirstName,
                 'lastname'=>$LastName,
                 'email'=>$Email,
-                'canCreateSite'=>$canCreateCourse,
-                'emplid'=>$emplid
+                'canCreateSite'=>$canCreateCourse
             );
         }
         return $result;
