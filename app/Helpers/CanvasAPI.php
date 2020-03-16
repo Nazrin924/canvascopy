@@ -157,11 +157,11 @@ class CanvasAPI {
 // Login ids for Weill are emails so we need to match the login id and netid@med.cornell.edu
         for($i = 0; $i < count($results); $i++) {
             if(isset($results[$i]["login_id"]) && ($results[$i]["login_id"] ==$netid || $results[$i]["login_id"]==str_replace("@cumed", "", $netid).'@med.cornell.edu' || $results[$i]["login_id"]==str_replace("@cumed", "", $netid).'@qatar-med.cornell.edu')) {
-                $userID=$results[0]["id"];
+                $userID=$results[i]["id"];
             }
         }
         if($userID!=0){
-                return $results[0]["id"];
+                return $userID;
             }
             else {
                 return 0;
