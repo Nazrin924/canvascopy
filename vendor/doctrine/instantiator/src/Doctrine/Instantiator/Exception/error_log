@@ -1,0 +1,1 @@
+[25-Jun-2019 15:57:22 UTC] PHP Fatal error:  Interface 'Doctrine\Instantiator\Exception\ExceptionInterface' not found in /home/canvasdev/public_html/canvasrequest/vendor/doctrine/instantiator/src/Doctrine/Instantiator/Exception/UnexpectedValueException.php on line 13

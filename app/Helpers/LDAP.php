@@ -59,7 +59,7 @@ class LDAP
                 $emplid = $info[0]["cornelleduemplid"][0];
             }
             else {
-                $Email = "";
+                $emplid = "";
             }
             if(isset($info[0]) && isset($info[0]["edupersonprimaryaffiliation"])) {
                 $primary = $info[0]["edupersonprimaryaffiliation"][0];
