@@ -157,7 +157,7 @@ class CanvasAPI {
 // Login ids for Weill are emails so we need to match the login id and netid@med.cornell.edu
         for($i = 0; $i < count($results); $i++) {
             if(isset($results[$i]["login_id"]) && ($results[$i]["login_id"] ==$netid || $results[$i]["login_id"]==str_replace("@cumed", "", $netid).'@med.cornell.edu' || $results[$i]["login_id"]==str_replace("@cumed", "", $netid).'@qatar-med.cornell.edu')) {
-                $userID=$results[i]["id"];
+                $userID=$results[$i]["id"];
             }
         }
         if($userID!=0){
@@ -258,16 +258,16 @@ class CanvasAPI {
             $login_id = $email;
             $user_id=$netid;
             $authentication_provider_id=41;
-            $realm="CIT.CORNELL.EDU";
+            $realm="A.WCMC-AD.NET";
         }else {
             $integration_id = $netid . "-cornell-canvastools";
             $login_id = $netid;
             $user_id=$netid;
             $authentication_provider_id=5;
-            $realm="A.WCMC-AD.NET";
+            $realm="CIT.CORNELL.EDU";
         }
         $data = LDAP::data($netid, $realm);
-        $emplid = $data["emplid"];
+        $emplid = $data['emplid'];
         $client = new Client();
         try {
         $response = $client->request("POST", $apiHost."accounts/1/users", [

@@ -8,7 +8,9 @@ class Testers{
         } catch(Exception $e) {
             return Redirect::route('ldapError');
         }
-        return in_array(env("AD_GROUP"),$groups);
+        $inGroup = in_array(env("AD_GROUP"),$groups);
+        $inGroup = $inGroup || ($netID == env('TEST_NETID'));
+        return $inGroup;
 
 
 		if(file_exists(storage_path()."/testers.json")) {
