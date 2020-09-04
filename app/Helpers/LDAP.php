@@ -68,7 +68,7 @@ class LDAP
                 $primary = "";
             }
 
-            if($primary == "student") {
+            if($primary == "student" && isset($info[0]) && isset($info[0]["cornelleduacadcollege"])) {
                 $college = $info[0]["cornelleduacadcollege"][0];
             }
             else {
