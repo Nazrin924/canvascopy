@@ -17,9 +17,10 @@ class LDAP
         $ldapweill="cn=bbtools ithaca,ou=binds,dc=weill,dc=cornell,dc=edu";
         //$ldapweill='uid='.env("LDAP_USER","").',o=med.cornell.edu,c=US';
         $ds=ldap_connect(env("LDAP_SERVER",""));
-        ldap_set_option($ds, LDAP_OPT_NETWORK_TIMEOUT, 30); 
-	$weill=ldap_connect(env("WEILL_LDAP",""));
-	ldap_set_option($weill, LDAP_OPT_NETWORK_TIMEOUT, 30); 
+        ldap_set_option($ds, LDAP_OPT_NETWORK_TIMEOUT, 30);
+	      $weill=ldap_connect(env("WEILL_LDAP",""));
+	      ldap_set_option($weill, LDAP_OPT_NETWORK_TIMEOUT, 300);
+        ldap_set_option($weill, LDAP_OPT_PROTOCOL_VERSION, 3);
         $result = array(
             'firstname'=>"",
             'lastname'=>"",
