@@ -225,14 +225,19 @@ class CanvasAPI {
             ]
         ]);
         $results = json_decode($response->getBody(), true);
-
-        if(isset($results[0]["id"])) {
-            \Log::info("CanvasAPI::findCourse - this method was called and $courseId exists in Canvas");
-            return true;
-        }
-        else {
-            \Log::info("CanvasAPI::findCourse - this method was called and $courseId does not exist in Canvas");
-            return false;
+        
+        $arrayLength = count($results);
+        $i = 0;
+        while ($i < $arrayLength){        
+            if(isset($results[$i]["id"]) && (strcasecmp($results[$i]["course_code"], $courseId) == 0) ) {
+                \Log::info("CanvasAPI::findCourse - this method was called and $courseId exists in Canvas");
+                return true;
+            }
+            else {
+                \Log::info("CanvasAPI::findCourse - this method was called and $courseId does not exist in Canvas");
+                return false;
+            }
+            $i++;
         }
 
 
