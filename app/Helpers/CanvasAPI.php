@@ -233,14 +233,10 @@ class CanvasAPI {
                 \Log::info("CanvasAPI::findCourse - this method was called and $courseId exists in Canvas");
                 return true;
             }
-            else {
-                \Log::info("CanvasAPI::findCourse - this method was called and $courseId does not exist in Canvas");
-                return false;
-            }
             $i++;
         }
-
-
+        \Log::info("CanvasAPI::findCourse - this method was called and $courseId does not exist in Canvas");
+        return false;
     }
 
     /**
