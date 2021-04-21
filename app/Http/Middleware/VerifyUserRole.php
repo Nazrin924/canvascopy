@@ -32,6 +32,7 @@ class VerifyUserRole
 	 */
 	public function handle($request, Closure $next)
 	{
+	    Log::info($_SERVER);
         $maskedNetid = session()->get("maskedNetid");
         $maskedRealm = session()->get("maskedRealm");
         if($maskedNetid){
@@ -41,9 +42,16 @@ class VerifyUserRole
             session()->put("toggleUser", false);
         }
         else{
-		    $netID = $request->headers->get('CUWA-REMOTE-USER');
-		    //$netID = $_SERVER['HTTP_CUWA_REMOTE_USER'];
-		    $realm = $request->headers->get('CUWA-REALM');
+		    //$netID = $request->headers->get('REMOTE_USER');
+		    //$realm = $request->headers->get('CUWA-REALM');
+		    $netID = $_SERVER['REMOTE_USER'];
+		    $realm = $_SERVER['Shib_Identity_Provider'];
+		    if($realm=='https://shibidp.cit.cornell.edu/idp/shibboleth'){
+		        $realm='CIT.CORNELL.EDU';   
+		    }
+		    else{
+		        $realm='A.WCMC-AD.NET';
+		    };
             if ($netID){
                 $user = User::where("name", $netID)->first();
                 if (!$user) {
@@ -73,8 +81,10 @@ class VerifyUserRole
               //$this->checkCreation($netID, $realm);
               session()->put("maskedNetid","");
               session()->put("maskedRealm","");
-              $netID = $request->headers->get(env('CU_REMOTE'));
-              $realm = $request->headers->get('CUWA-REALM');
+              //$netID = $request->headers->get(env('CU_REMOTE'));
+              //$realm = $request->headers->get('CU-REALM');
+              $netID = $_SERVER['CU_REMOTE'];
+              $realm = $_SERVER['CU_REALM'];
               session()->put("realm", $realm);
               session()->put('netID', $netID);
               $this->checkCreation($netID, $realm);
