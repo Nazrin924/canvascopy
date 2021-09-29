@@ -21,22 +21,23 @@
 
 						<p>If you are not {{$fName." ".$lName}}, please exit the browser and re-authenticate under your own credentials</p>
 
-						@if($canCreateSite || $canCreateUser)
-
-							<form class="form-basic"><fieldset class="submit">
-								@if($canCreateUser)
-									<input type="submit" value="Create a Canvas@Cornell user account"
-										onclick="location = 'createAccount'; return false;"></a>
-									@if($canCreateSite)<br /> @endif
-								@endif
-								@if($canCreateSite)
-                                <p class="panel accent-red fill">You already have a Canvas account. To log into Canvas go to <a href="https://canvas.cornell.edu">https://canvas.cornell.edu</a></p>
-								<input type="submit" value="Create a Canvas course site"
-									onclick="location = 'createCourse'; return false;"></a>
-								@endif
-							</fieldset></form>
-
-						@endif
+            {{--        @if($canCreateSite || $canCreateUser)--}}
+            
+                      <form class="form-basic"><fieldset class="submit">
+                          @if($canCreateUser)
+                            <input type="submit" value="Create a Canvas@Cornell user account"
+                                   onclick="location = 'createAccount'; return false;"></a>
+                          @else
+                            <p class="panel accent-red fill">You already have a Canvas account. To log into Canvas go to <a href="https://canvas.cornell.edu">https://canvas.cornell.edu</a></p>
+                          @endif
+                          <br />
+                          @if($canCreateSite)
+                            <input type="submit" value="Create a Canvas course site"
+                                   onclick="location = 'createCourse'; return false;"></a>
+                          @endif
+                        </fieldset></form>
+            
+            {{--        @endif--}}
 						<p>Information about using Canvas@Cornell can be found at: <a target="_blank" href='{{env('CVS_HELP_URL')}}'>{{env('CVS_HELP_URL')}}</a></p>
 
 						@if(isset($isDebugger) && $isDebugger) @include("includes/testerMenu") @endif
