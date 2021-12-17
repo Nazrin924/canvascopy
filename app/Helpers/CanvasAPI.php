@@ -3,6 +3,7 @@ namespace App\Helpers;
 
 use GuzzleHttp\Client;
 use \App\Helpers\LDAP;
+use Carbon\Carbon;
 
 /**
  * A helper class for dealing with Canvas WebServices
@@ -253,15 +254,17 @@ class CanvasAPI {
     public static function createUser($firstName, $lastName,$email, $netid) {
         $token = env("CVS_WS_TOKEN");
         $apiHost = env("CVS_WS_URL");
+        $date = Carbon::now();
+        $ourDate = $date->format('Ymd');
         //\Log::info("CanvasAPI::createUser was started for:".$netid);
         if (strpos($email, 'med.cornell.edu') !== false) {
-            $integration_id = $netid . "-cu_weill-canvastools";
+            $integration_id = $netid . "-" . $ourDate . "-cu_weill-canvastools";
             $login_id = $email;
             $user_id=$netid;
             $authentication_provider_id=41;
             $realm="A.WCMC-AD.NET";
         }else {
-            $integration_id = $netid . "-cornell-canvastools";
+            $integration_id = $netid . "-" . $ourDate . "-cornell-canvastools";
             $login_id = $netid;
             $user_id=$netid;
             $authentication_provider_id=5;
@@ -313,6 +316,8 @@ class CanvasAPI {
         $token = env("CVS_WS_TOKEN");
         $apiHost = env("CVS_WS_URL");
         $client = new Client();
+        $date = Carbon::now();
+        $ourDate = $date->format('Ymd');
         try {
             $response = $client->request("POST", $apiHost."accounts/51/courses", [
                 'headers' => [
@@ -323,10 +328,9 @@ class CanvasAPI {
                 'form_params' => [
                     'course[name]'    => $courseName,
                     'course[course_code]' => $courseId,
-                    'course[integration_id]'   => $courseId."-canvastools",
+                    'course[integration_id]'   => $courseId."-".$ourDate."-canvastools",
                     'course[term_id]'      => 46,
                     'course[is_public]'       => "false",
-                    'blueprint_course_id'=> "user-created-course-blueprint",
                 ]
             ]);
             $results = json_decode($response->getBody(), true);
@@ -338,11 +342,6 @@ class CanvasAPI {
             $enrolled = (new self)->enrollUser($netid, $results["id"]);
         } catch(Exception $e) {
             Log::error("Canvas failure in teacher enrollment");
-        }
-        try {
-            $blueprinted = (new self)->blueprintCourse($courseId);
-        } catch(Exception $e) {
-            Log::error("Canvas failure in associating $courseId with blueprint course");
         }
         //\Log::info("CanvasAPI::createCourse: ".$courseName." was created successfully ");
         return true;
