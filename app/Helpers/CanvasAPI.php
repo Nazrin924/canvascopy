@@ -258,13 +258,13 @@ class CanvasAPI {
         $ourDate = $date->format('Ymd');
         //\Log::info("CanvasAPI::createUser was started for:".$netid);
         if (strpos($email, 'med.cornell.edu') !== false) {
-            $integration_id = $netid . "-" . $ourDate . "-cu_weill-canvastools";
+            $integration_id = $netid . "-cu_weill-canvastools-" . $ourDate;
             $login_id = $email;
             $user_id=$netid;
             $authentication_provider_id=41;
             $realm="A.WCMC-AD.NET";
         }else {
-            $integration_id = $netid . "-" . $ourDate . "-cornell-canvastools";
+            $integration_id = $netid . "-cornell-canvastools-" . $ourDate ;
             $login_id = $netid;
             $user_id=$netid;
             $authentication_provider_id=5;
@@ -328,7 +328,7 @@ class CanvasAPI {
                 'form_params' => [
                     'course[name]'    => $courseName,
                     'course[course_code]' => $courseId,
-                    'course[integration_id]'   => $courseId."-".$ourDate."-canvastools",
+                    'course[integration_id]'   => $courseId."-canvastools-".$ourDate,
                     'course[term_id]'      => 46,
                     'course[is_public]'       => "false",
                 ]
