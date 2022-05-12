@@ -108,6 +108,7 @@ class CanvasAPI {
             ],
             'form_params' => [
                 'search_term'   => str_replace("@cumed", "", $netid),
+                'per_page'      => 100,
             ]
         ]);
         $results = json_decode($response->getBody(), true);
@@ -150,6 +151,7 @@ class CanvasAPI {
             ],
             'form_params' => [
                 'search_term'   => str_replace("@cumed", "", $netid),
+                'per_page'      => 100,
             ]
         ]);
         $results = json_decode($response->getBody(), true);
@@ -189,6 +191,7 @@ class CanvasAPI {
             ],
             'form_params' => [
                 'search_term'   => $course_code,
+                'per_page'      => 100,
             ]
         ]);
         $results = json_decode($response->getBody(), true);
@@ -223,6 +226,7 @@ class CanvasAPI {
             ],
             'form_params' => [
                 'search_term'   => $courseId,
+                'per_page'      => 100,
             ]
         ]);
         $results = json_decode($response->getBody(), true);
