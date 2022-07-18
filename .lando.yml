@@ -1,0 +1,45 @@
+name: canvasrequest
+recipe: laravel
+config:
+  webroot: ./public
+  # set php version to the same as the server.
+  php: "7.3"
+  database: mysql:5.7
+  cache: none
+#  composer_version: 1.2
+
+services:
+  database:
+    portforward: 37005
+  phpmyadmin:
+    type: phpmyadmin
+    hosts:
+      - database
+  nodejs:
+    type: node:16.13.1
+
+tooling:
+  npm:
+    service: nodejs
+    description: Alias to run npm commands (e.g., lando npm run watch)
+  node:
+    service: nodejs
+    description: Alias to run node commands (e.g., lando node install)
+
+  watch:
+    service: nodejs
+    description: Theme compile watcher (runs "npm run watch-poll")
+    cmd:
+      - npm run watch-poll
+
+  reset:
+    service: appserver
+    description: Application reset (dump-autload + package:discover)
+    cmd:
+      - /usr/local/bin/composer dump-autoload
+      - /app/artisan package:discover
+      - /app/artisan view:clear
+
+  phpunit:
+    service: appserver
+    description: "Run PHP Unit tests: lando phpunit"

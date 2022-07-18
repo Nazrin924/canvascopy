@@ -3,16 +3,7 @@
 class Testers{
 
 	public static function check($netID, $realm){
-        try {
-            $groups = LDAP::getADGroups($netID ,$realm);
-        } catch(Exception $e) {
-            return Redirect::route('ldapError');
-        }
-        $inGroup = in_array(env("AD_GROUP"),$groups);
-        $inGroup = $inGroup || ($netID == env('TEST_NETID'));
-        return $inGroup;
-
-
+		if ($netID == env('TEST_NETID')) { return true; }
 		if(file_exists(storage_path()."/testers.json")) {
 			$info = fopen(storage_path()."/testers.json", "r");
 			$testers = json_decode(fread($info, filesize(storage_path()."/testers.json")));
@@ -20,6 +11,15 @@ class Testers{
 
 			return in_array($netID , $testers);
 		}
+        try {
+            $groups = LDAP::getADGroups($netID ,$realm);
+        } catch(\Exception $e) {
+            return redirect()->route('ldapError');
+        }
+        $inGroup = in_array(env("AD_GROUP"),$groups);
+        return $inGroup;
+
+
 	}
 
 	public static function add($netID){

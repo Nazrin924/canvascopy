@@ -115,7 +115,7 @@ class AccountController extends Controller
         try {
         Queue::push(new DoAccountCreation($netID, $firstName, $lastName, $email, $realm));
 
-      } catch(Exception $e) {
+      } catch(\Exception $e) {
         return view('accountError');
       }
     }

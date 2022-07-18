@@ -56,6 +56,20 @@
                 {{slotProps.entry.content.duration || '-'}} ms
             </td>
         </tr>
+
+        <tr>
+            <td class="table-fit font-weight-bold">IP Address</td>
+            <td>
+                {{slotProps.entry.content.ip_address || '-'}}
+            </td>
+        </tr>
+
+        <tr>
+            <td class="table-fit font-weight-bold">Memory usage</td>
+            <td>
+                {{slotProps.entry.content.memory || '-'}} MB
+            </td>
+        </tr>
         </template>
 
         <div slot="after-attributes-card" slot-scope="slotProps">

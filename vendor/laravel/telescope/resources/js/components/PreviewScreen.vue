@@ -63,13 +63,6 @@
             command() {
                 return _.find(this.batch, {type: 'command'})
             },
-
-            gravatarUrl() {
-                if (this.entry.content.user.email) {
-                    const md5 = require('md5')
-                    return 'https://www.gravatar.com/avatar/' + md5(this.entry.content.user.email) + '?s=200'
-                }
-            }
         },
 
 
@@ -100,7 +93,7 @@
 
 
             loadEntry(after){
-                axios.get('/' + Telescope.path + '/telescope-api/' + this.resource + '/' + this.id).then(response => {
+                axios.get(Telescope.basePath + '/telescope-api/' + this.resource + '/' + this.id).then(response => {
                     if (_.isFunction(after)) {
                         after(response);
                     }
@@ -242,7 +235,7 @@
                     <td class="table-fit font-weight-bold align-middle">Name</td>
 
                     <td class="align-middle">
-                        <img :src="gravatarUrl" class="mr-2 rounded-circle" height="40" width="40" v-if="gravatarUrl">
+                        <img :src="entry.content.user.avatar" :alt="entry.content.user.name" class="mr-2 rounded-circle" height="40" width="40" v-if="entry.content.user.avatar">
                         {{entry.content.user.name}}
                     </td>
                 </tr>

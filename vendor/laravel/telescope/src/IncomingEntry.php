@@ -71,7 +71,7 @@ class IncomingEntry
      */
     public function __construct(array $content)
     {
-        $this->uuid = Str::orderedUuid();
+        $this->uuid = (string) Str::orderedUuid();
 
         $this->recordedAt = now();
 
@@ -113,6 +113,19 @@ class IncomingEntry
     public function type(string $type)
     {
         $this->type = $type;
+
+        return $this;
+    }
+
+    /**
+     * Assign the entry a family hash.
+     *
+     * @param  string  $familyHash
+     * @return $this
+     */
+    public function withFamilyHash(string $familyHash)
+    {
+        $this->familyHash = $familyHash;
 
         return $this;
     }
@@ -165,6 +178,27 @@ class IncomingEntry
         }
 
         return false;
+    }
+
+    /**
+     * Determine if the incoming entry is a failed request.
+     *
+     * @return bool
+     */
+    public function isFailedRequest()
+    {
+        return $this->type === EntryType::REQUEST &&
+            ($this->content['response_status'] ?? 200) >= 500;
+    }
+
+    /**
+     * Determine if the incoming entry is a query.
+     *
+     * @return bool
+     */
+    public function isQuery()
+    {
+        return $this->type === EntryType::QUERY;
     }
 
     /**
@@ -238,6 +272,7 @@ class IncomingEntry
         return [
             'uuid' => $this->uuid,
             'batch_id' => $this->batchId,
+            'family_hash' => $this->familyHash,
             'type' => $this->type,
             'content' => $this->content,
             'created_at' => $this->recordedAt->toDateTimeString(),

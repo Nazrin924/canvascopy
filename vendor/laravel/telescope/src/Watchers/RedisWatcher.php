@@ -2,9 +2,9 @@
 
 namespace Laravel\Telescope\Watchers;
 
-use Laravel\Telescope\Telescope;
-use Laravel\Telescope\IncomingEntry;
 use Illuminate\Redis\Events\CommandExecuted;
+use Laravel\Telescope\IncomingEntry;
+use Laravel\Telescope\Telescope;
 
 class RedisWatcher extends Watcher
 {
@@ -17,6 +17,12 @@ class RedisWatcher extends Watcher
     public function register($app)
     {
         $app['events']->listen(CommandExecuted::class, [$this, 'recordCommand']);
+
+        foreach ((array) $app['redis']->connections() as $connection) {
+            $connection->setEventDispatcher($app['events']);
+        }
+
+        $app['redis']->enableEvents();
     }
 
     /**
@@ -34,7 +40,7 @@ class RedisWatcher extends Watcher
         Telescope::recordRedis(IncomingEntry::make([
             'connection' => $event->connectionName,
             'command' => $this->formatCommand($event->command, $event->parameters),
-            'time' => number_format($event->time, 2),
+            'time' => number_format($event->time, 2, '.', ''),
         ]));
     }
 
@@ -50,6 +56,10 @@ class RedisWatcher extends Watcher
         $parameters = collect($parameters)->map(function ($parameter) {
             if (is_array($parameter)) {
                 return collect($parameter)->map(function ($value, $key) {
+                    if (is_array($value)) {
+                        return json_encode($value);
+                    }
+
                     return is_int($key) ? $value : "{$key} {$value}";
                 })->implode(' ');
             }

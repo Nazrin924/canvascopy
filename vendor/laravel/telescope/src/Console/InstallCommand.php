@@ -2,14 +2,11 @@
 
 namespace Laravel\Telescope\Console;
 
-use Illuminate\Support\Str;
 use Illuminate\Console\Command;
-use Illuminate\Console\DetectsApplicationNamespace;
+use Illuminate\Support\Str;
 
 class InstallCommand extends Command
 {
-    use DetectsApplicationNamespace;
-
     /**
      * The name and signature of the console command.
      *
@@ -52,7 +49,7 @@ class InstallCommand extends Command
      */
     protected function registerTelescopeServiceProvider()
     {
-        $namespace = str_replace_last('\\', '', $this->getAppNamespace());
+        $namespace = Str::replaceLast('\\', '', $this->laravel->getNamespace());
 
         $appConfig = file_get_contents(config_path('app.php'));
 
@@ -63,14 +60,14 @@ class InstallCommand extends Command
         $lineEndingCount = [
             "\r\n" => substr_count($appConfig, "\r\n"),
             "\r" => substr_count($appConfig, "\r"),
-            "\n" => substr_count($appConfig, "\n")
+            "\n" => substr_count($appConfig, "\n"),
         ];
 
         $eol = array_keys($lineEndingCount, max($lineEndingCount))[0];
 
         file_put_contents(config_path('app.php'), str_replace(
-            "{$namespace}\\Providers\EventServiceProvider::class,".$eol,
-            "{$namespace}\\Providers\EventServiceProvider::class,".$eol."        {$namespace}\Providers\TelescopeServiceProvider::class,".$eol,
+            "{$namespace}\\Providers\RouteServiceProvider::class,".$eol,
+            "{$namespace}\\Providers\RouteServiceProvider::class,".$eol."        {$namespace}\Providers\TelescopeServiceProvider::class,".$eol,
             $appConfig
         ));
 

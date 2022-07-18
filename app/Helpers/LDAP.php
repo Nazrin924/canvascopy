@@ -162,7 +162,7 @@ class LDAP
             $ldaprdn = "cn=$username,ou=BindIDs,o=Cornell University,c=US";
 
             $ds = ldap_connect($server,$port);
-	    ldap_set_option($ds, LDAP_OPT_NETWORK_TIMEOUT, 30); 
+	        ldap_set_option($ds, LDAP_OPT_NETWORK_TIMEOUT, 30); 
             if(!$ds) {
                 return [];
             }
