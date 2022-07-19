@@ -19,7 +19,7 @@ private static $installed = array (
     'aliases' => 
     array (
     ),
-    'reference' => 'ac1eb4426c7cd082acccf91d729da8659e3b01ae',
+    'reference' => '0aa075290f4f18b4deb5e7b41487a6e06d355d89',
     'name' => 'laravel/laravel',
   ),
   'versions' => 
@@ -101,14 +101,23 @@ private static $installed = array (
       ),
       'reference' => '0dbf5d78455d4d6a41d186da50adc1122ec066f4',
     ),
-    'fideloper/proxy' => 
+    'facade/ignition-contracts' => 
     array (
-      'pretty_version' => '4.4.1',
-      'version' => '4.4.1.0',
+      'pretty_version' => '1.0.2',
+      'version' => '1.0.2.0',
       'aliases' => 
       array (
       ),
-      'reference' => 'c073b2bd04d1c90e04dc1b787662b558dd65ade0',
+      'reference' => '3c921a1cdba35b68a7f0ccffc6dffc1995b18267',
+    ),
+    'fideloper/proxy' => 
+    array (
+      'pretty_version' => '4.4.2',
+      'version' => '4.4.2.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => 'a751f2bc86dd8e6cfef12dc0cbdada82f5a18750',
     ),
     'filp/whoops' => 
     array (
@@ -390,7 +399,7 @@ private static $installed = array (
       'aliases' => 
       array (
       ),
-      'reference' => 'ac1eb4426c7cd082acccf91d729da8659e3b01ae',
+      'reference' => '0aa075290f4f18b4deb5e7b41487a6e06d355d89',
     ),
     'laravel/passport' => 
     array (
@@ -540,6 +549,15 @@ private static $installed = array (
       array (
       ),
       'reference' => '34bea19b6e03d8153165d8f30bba4c3be86184c1',
+    ),
+    'nunomaduro/collision' => 
+    array (
+      'pretty_version' => 'v5.11.0',
+      'version' => '5.11.0.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => '8b610eef8582ccdc05d8f2ab23305e2d37049461',
     ),
     'opis/closure' => 
     array (
