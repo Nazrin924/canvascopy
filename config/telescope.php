@@ -53,6 +53,7 @@ return [
 
     'middleware' => [
         'web',
+        'userrole',
         Authorize::class,
     ],
 
