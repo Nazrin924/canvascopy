@@ -18,7 +18,7 @@
         </tr>
 
         <template slot="row" slot-scope="slotProps">
-            <td :title="slotProps.entry.content.message">{{truncate(slotProps.entry.content.message, 75)}}</td>
+            <td :title="slotProps.entry.content.message">{{truncate(slotProps.entry.content.message, 50)}}</td>
 
             <td class="table-fit">
                 <span class="badge font-weight-light" :class="'badge-'+logLevelClass(slotProps.entry.content.level)">
@@ -26,7 +26,9 @@
                 </span>
             </td>
 
-            <td class="table-fit" :data-timeago="slotProps.entry.created_at">{{timeAgo(slotProps.entry.created_at)}}</td>
+            <td class="table-fit" :data-timeago="slotProps.entry.created_at" :title="slotProps.entry.created_at">
+                {{timeAgo(slotProps.entry.created_at)}}
+            </td>
 
             <td class="table-fit">
                 <router-link :to="{name:'log-preview', params: {id: slotProps.entry.id}}" class="control-action">

@@ -3,14 +3,15 @@
 namespace Laravel\Telescope\Storage;
 
 use DateTimeInterface;
-use Laravel\Telescope\EntryType;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Laravel\Telescope\EntryResult;
-use Laravel\Telescope\Contracts\PrunableRepository;
 use Laravel\Telescope\Contracts\ClearableRepository;
-use Laravel\Telescope\Contracts\TerminableRepository;
 use Laravel\Telescope\Contracts\EntriesRepository as Contract;
+use Laravel\Telescope\Contracts\PrunableRepository;
+use Laravel\Telescope\Contracts\TerminableRepository;
+use Laravel\Telescope\EntryResult;
+use Laravel\Telescope\EntryType;
+use Laravel\Telescope\IncomingEntry;
 
 class DatabaseEntriesRepository implements Contract, ClearableRepository, PrunableRepository, TerminableRepository
 {
@@ -20,6 +21,13 @@ class DatabaseEntriesRepository implements Contract, ClearableRepository, Prunab
      * @var string
      */
     protected $connection;
+
+    /**
+     * The number of entries that will be inserted at once into the database.
+     *
+     * @var int
+     */
+    protected $chunkSize = 1000;
 
     /**
      * The tags currently being monitored.
@@ -32,11 +40,16 @@ class DatabaseEntriesRepository implements Contract, ClearableRepository, Prunab
      * Create a new database repository.
      *
      * @param  string  $connection
+     * @param  int     $chunkSize
      * @return void
      */
-    public function __construct(string $connection)
+    public function __construct(string $connection, int $chunkSize = null)
     {
         $this->connection = $connection;
+
+        if ($chunkSize) {
+            $this->chunkSize = $chunkSize;
+        }
     }
 
     /**
@@ -96,6 +109,20 @@ class DatabaseEntriesRepository implements Contract, ClearableRepository, Prunab
     }
 
     /**
+     * Counts the occurences of an exception.
+     *
+     * @param  \Laravel\Telescope\IncomingEntry  $exception
+     * @return int
+     */
+    protected function countExceptionOccurences(IncomingEntry $exception)
+    {
+        return $this->table('telescope_entries')
+                    ->where('type', EntryType::EXCEPTION)
+                    ->where('family_hash', $exception->familyHash())
+                    ->count();
+    }
+
+    /**
      * Store the given array of entries.
      *
      * @param  \Illuminate\Support\Collection|\Laravel\Telescope\IncomingEntry[]  $entries
@@ -113,7 +140,7 @@ class DatabaseEntriesRepository implements Contract, ClearableRepository, Prunab
 
         $table = $this->table('telescope_entries');
 
-        $entries->chunk(1000)->each(function ($chunked) use ($table) {
+        $entries->chunk($this->chunkSize)->each(function ($chunked) use ($table) {
             $table->insert($chunked->map(function ($entry) {
                 $entry->content = json_encode($entry->content);
 
@@ -132,24 +159,23 @@ class DatabaseEntriesRepository implements Contract, ClearableRepository, Prunab
      */
     protected function storeExceptions(Collection $exceptions)
     {
-        $this->table('telescope_entries')->insert($exceptions->map(function ($exception) {
-            $occurrences = $this->table('telescope_entries')
-                    ->where('type', EntryType::EXCEPTION)
-                    ->where('family_hash', $exception->familyHash())
-                    ->count();
+        $exceptions->chunk($this->chunkSize)->each(function ($chunked) {
+            $this->table('telescope_entries')->insert($chunked->map(function ($exception) {
+                $occurrences = $this->countExceptionOccurences($exception);
 
-            $this->table('telescope_entries')
-                    ->where('type', EntryType::EXCEPTION)
-                    ->where('family_hash', $exception->familyHash())
-                    ->update(['should_display_on_index' => false]);
+                $this->table('telescope_entries')
+                        ->where('type', EntryType::EXCEPTION)
+                        ->where('family_hash', $exception->familyHash())
+                        ->update(['should_display_on_index' => false]);
 
-            return array_merge($exception->toArray(), [
-                'family_hash' => $exception->familyHash(),
-                'content' => json_encode(array_merge(
-                    $exception->content, ['occurrences' => $occurrences + 1]
-                )),
-            ]);
-        })->toArray());
+                return array_merge($exception->toArray(), [
+                    'family_hash' => $exception->familyHash(),
+                    'content' => json_encode(array_merge(
+                        $exception->content, ['occurrences' => $occurrences + 1]
+                    )),
+                ]);
+            })->toArray());
+        });
 
         $this->storeTags($exceptions->pluck('tags', 'uuid'));
     }
@@ -160,16 +186,18 @@ class DatabaseEntriesRepository implements Contract, ClearableRepository, Prunab
      * @param  \Illuminate\Support\Collection  $results
      * @return void
      */
-    protected function storeTags($results)
+    protected function storeTags(Collection $results)
     {
-        $this->table('telescope_entries_tags')->insert($results->flatMap(function ($tags, $uuid) {
-            return collect($tags)->map(function ($tag) use ($uuid) {
-                return [
-                    'entry_uuid' => $uuid,
-                    'tag' => $tag,
-                ];
-            });
-        })->all());
+        $results->chunk($this->chunkSize)->each(function ($chunked) {
+            $this->table('telescope_entries_tags')->insert($chunked->flatMap(function ($tags, $uuid) {
+                return collect($tags)->map(function ($tag) use ($uuid) {
+                    return [
+                        'entry_uuid' => $uuid,
+                        'tag' => $tag,
+                    ];
+                });
+            })->all());
+        });
     }
 
     /**
@@ -191,7 +219,7 @@ class DatabaseEntriesRepository implements Contract, ClearableRepository, Prunab
             }
 
             $content = json_encode(array_merge(
-                json_decode($entry->content, true), $update->changes
+                json_decode($entry->content, true) ?: [], $update->changes
             ));
 
             $this->table('telescope_entries')
@@ -309,9 +337,18 @@ class DatabaseEntriesRepository implements Contract, ClearableRepository, Prunab
      */
     public function prune(DateTimeInterface $before)
     {
-        return $this->table('telescope_entries')
-                ->where('created_at', '<', $before)
-                ->delete();
+        $query = $this->table('telescope_entries')
+                ->where('created_at', '<', $before);
+
+        $totalDeleted = 0;
+
+        do {
+            $deleted = $query->take($this->chunkSize)->delete();
+
+            $totalDeleted += $deleted;
+        } while ($deleted !== 0);
+
+        return $totalDeleted;
     }
 
     /**

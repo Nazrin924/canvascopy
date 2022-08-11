@@ -4,9 +4,9 @@ namespace Laravel\Telescope;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Telescope\Contracts\ClearableRepository;
 use Laravel\Telescope\Contracts\EntriesRepository;
 use Laravel\Telescope\Contracts\PrunableRepository;
-use Laravel\Telescope\Contracts\ClearableRepository;
 use Laravel\Telescope\Storage\DatabaseEntriesRepository;
 
 class TelescopeServiceProvider extends ServiceProvider
@@ -18,6 +18,10 @@ class TelescopeServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        if (! config('telescope.enabled')) {
+            return;
+        }
+
         Route::middlewareGroup('telescope', config('telescope.middleware', []));
 
         $this->registerRoutes();
@@ -154,6 +158,10 @@ class TelescopeServiceProvider extends ServiceProvider
         $this->app->when(DatabaseEntriesRepository::class)
             ->needs('$connection')
             ->give(config('telescope.storage.database.connection'));
+
+        $this->app->when(DatabaseEntriesRepository::class)
+            ->needs('$chunkSize')
+            ->give(config('telescope.storage.database.chunk'));
     }
 
     /**

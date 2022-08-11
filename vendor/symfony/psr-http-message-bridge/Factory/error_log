@@ -1,1 +1,0 @@
-[25-Jun-2019 16:11:49 UTC] PHP Fatal error:  Interface 'Symfony\Bridge\PsrHttpMessage\HttpMessageFactoryInterface' not found in /home/canvasdev/public_html/canvasrequest/vendor/symfony/psr-http-message-bridge/Factory/PsrHttpFactory.php on line 31

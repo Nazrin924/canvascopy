@@ -44,8 +44,9 @@ class VerifyUserRole
         else{
 		    //$netID = $request->headers->get('REMOTE_USER');
 		    //$realm = $request->headers->get('CUWA-REALM');
-		    $netID = $_SERVER['REMOTE_USER'];
-		    $realm = $_SERVER['Shib_Identity_Provider'];
+		    $netID = env('REMOTE_USER');
+        Log::info("netID set to $netID");
+		    $realm = env('Shib_Identity_Provider');
 		    if($realm=='https://shibidp.cit.cornell.edu/idp/shibboleth'){
 		        $realm='CIT.CORNELL.EDU';   
 		    }
@@ -83,8 +84,8 @@ class VerifyUserRole
               session()->put("maskedRealm","");
               //$netID = $request->headers->get(env('CU_REMOTE'));
               //$realm = $request->headers->get('CU-REALM');
-              $netID = $_SERVER['CU_REMOTE'];
-              $realm = $_SERVER['CU_REALM'];
+              $netID = env('CU_REMOTE');
+              $realm = env('CU_REALM');
               session()->put("realm", $realm);
               session()->put('netID', $netID);
               $this->checkCreation($netID, $realm);
@@ -100,7 +101,8 @@ class VerifyUserRole
           $netID .= "@cumed";
         }
       }
-    } catch(Exception $e) {
+    } catch(\Exception $e) {
+      Log::info("ldapError 3");
       return Redirect::route('ldapError');
     }
 
@@ -108,16 +110,20 @@ class VerifyUserRole
 			session()->put('isDebugger', Testers::check($netID, $realm));
 		}
 
-    try {
-        $groups = LDAP::getADGroups($netID ,$realm);
-    } catch(Exception $e) {
-        return Redirect::route('ldapError');
+    if ($netID == env('TEST_NETID')) {
+        session()->put('isTester', true);
+        $inGroup = true;
+    } else {
+        try {
+            $groups = LDAP::getADGroups($netID ,$realm);
+        } catch(\Exception $e) {
+            Log::info("ldapError 1");
+            return Redirect::route('ldapError');
+        }
+        $inGroup = in_array(env("AD_GROUP"),$groups);
+        session()->put('isTester', $inGroup);
     }
 
-
-		$inGroup = in_array(env("AD_GROUP"),$groups);
-        $inGroup = $inGroup || ($netID == env('TEST_NETID'));
-		session()->put('isTester', $inGroup);
 
 /*    try {
       if($realm == env('CU_REALM')) {
@@ -180,6 +186,7 @@ class VerifyUserRole
 	{
         $data = LDAP::data($netID, $realm);
         if(!array_filter($data)) {
+            Log::info("ldapError 2");
             return Redirect::route('ldapError');
         }
         if(!strpos($netID, '@cumed') && $realm == "A.WCMC-AD.NET") {

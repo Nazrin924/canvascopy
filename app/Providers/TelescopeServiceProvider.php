@@ -55,6 +55,8 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
             return in_array($user->email, [
                 'nst37@cornell.edu',
                 'nazrin.tingstrom@cornell.edu',
+                'rjm2@cornell.edu',
+                'jsu1@cornell.edu',
             ]);
         });
     }

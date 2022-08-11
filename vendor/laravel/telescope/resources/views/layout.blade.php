@@ -6,8 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="shortcut icon" href="{{ asset('/vendor/telescope/favicon.ico') }}">
+    
+    <meta name="robots" content="noindex, nofollow">
 
-    <title>Telescope</title>
+    <title>Telescope{{ config('app.name') ? ' - ' . config('app.name') : '' }}</title>
 
     <!-- Style sheets-->
     <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
@@ -28,7 +30,7 @@
                 <path class="fill-primary" d="M0 40a39.87 39.87 0 0 1 11.72-28.28A40 40 0 1 1 0 40zm34 10a4 4 0 0 1-4-4v-2a2 2 0 1 0-4 0v2a4 4 0 0 1-4 4h-2a2 2 0 1 0 0 4h2a4 4 0 0 1 4 4v2a2 2 0 1 0 4 0v-2a4 4 0 0 1 4-4h2a2 2 0 1 0 0-4h-2zm24-24a6 6 0 0 1-6-6v-3a3 3 0 0 0-6 0v3a6 6 0 0 1-6 6h-3a3 3 0 0 0 0 6h3a6 6 0 0 1 6 6v3a3 3 0 0 0 6 0v-3a6 6 0 0 1 6-6h3a3 3 0 0 0 0-6h-3zm-4 36a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM21 28a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"></path>
             </svg>
 
-            <h4 class="mb-0 ml-3"><strong>Laravel</strong> Telescope</h4>
+            <h4 class="mb-0 ml-3"><strong>Laravel</strong> Telescope{{ config('app.name') ? ' - ' . config('app.name') : '' }}</h4>
 
             <button class="btn btn-outline-primary ml-auto mr-3" v-on:click.prevent="toggleRecording" title="Play/Pause">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" class="icon fill-primary" v-if="recording">
@@ -115,6 +117,14 @@
                         </router-link>
                     </li>
                     <li class="nav-item">
+                        <router-link active-class="active" to="/views" class="nav-link d-flex align-items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <path d="M7 3H2v14h5V3zm2 0v14h9V3H9zM0 3c0-1.1.9-2 2-2h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3zm3 1h3v2H3V4zm0 3h3v2H3V7zm0 3h3v2H3v-2z"/>
+                            </svg>
+                            <span>Views</span>
+                        </router-link>
+                    </li>
+                    <li class="nav-item">
                         <router-link active-class="active" to="/queries" class="nav-link d-flex align-items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                 <path d="M1 1h18v2H1V1zm0 8h18v2H1V9zm0 8h18v2H1v-2zM1 5h12v2H1V5zm0 8h12v2H1v-2z"></path>
@@ -182,6 +192,12 @@
             </div>
 
             <div class="col-10">
+                @if (! $assetsAreCurrent)
+                    <div class="alert alert-warning">
+                        The published Telescope assets are not up-to-date with the installed version. To update, run:<br/><code>php artisan telescope:publish</code>
+                    </div>
+                @endif
+
                 <router-view></router-view>
             </div>
         </div>
