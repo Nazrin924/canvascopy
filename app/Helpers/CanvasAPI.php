@@ -288,6 +288,7 @@ class CanvasAPI {
                 'user[name]'    => $firstName.' '.$lastName,
                 'communication_channel[type]' => "email",
                 'communication_channel[address]'   => $email,
+                'communication_channel[skip_confirmation]' => true,
                 'pseudonym[sis_user_id]'      => $emplid,
                 'pseudonym[integration_id]'=> $integration_id,
                 'user[status]'        => "active",
