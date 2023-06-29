@@ -47,7 +47,7 @@ class VerifyUserRole
 		    $netID = env('REMOTE_USER');
         Log::info("netID set to $netID");
 		    $realm = env('Shib_Identity_Provider');
-		    if($realm=='https://shibidp.cit.cornell.edu/idp/shibboleth'){
+		    if($realm=='https://shibidp-test.cit.cornell.edu/idp/shibboleth' or $realm=='https://shibidp.cit.cornell.edu/idp/shibboleth'){
 		        $realm='CIT.CORNELL.EDU';   
 		    }
 		    else{
