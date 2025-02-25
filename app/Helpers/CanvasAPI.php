@@ -275,7 +275,11 @@ class CanvasAPI {
             $realm="CIT.CORNELL.EDU";
         }
         $data = LDAP::data($netid, $realm);
-        $emplid = $data['emplid'];
+        if ($data['emplid'] != null) {
+        	$emplid = $data['emplid'];
+        } else {
+           $emplid = $netid;
+        }
         $client = new Client();
         try {
         $response = $client->request("POST", $apiHost."accounts/1/users", [

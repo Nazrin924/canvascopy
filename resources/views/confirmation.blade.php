@@ -22,8 +22,8 @@
               <p>Your new Canvas Course Site is being created with the following details:</p>
 
               <ul>
-                <li><strong>Course-ID: {{$courseID}}</strong></li>
-                <li><strong>Course Name: {{$courseName}}</strong></li>
+                <li><strong>Canvas Course Name: {{$courseName}}</strong></li>
+                <li><strong>Canvas Course Short Name: {{$courseID}}</strong></li>
               </ul>
 
               <p>You will be notified when your request has been processed, typically within 30 minutes. The confirmation email will include instructions on accessing Canvas.</p>
@@ -43,7 +43,7 @@
 
 
               <p>Please contact us at <a target="_blank" href="mailto:{{env('EMAIL_ADMIN')}}">{{env("EMAIL_ADMIN")}}</a>
-                 or call (607) 255-9760 if you have any questions regarding this course request.
+                 if you have any questions regarding this course request.
 
               </p>
               <p>Thank you,</p>
@@ -51,7 +51,12 @@
                 {{env('DISPLAY_NAME')}}
               </p>
 
-            <a href="./">Back to home page</a>
+            <form class="form-basic">
+        		<fieldset class="submit">
+        			<input type="submit" onclick="location='{{URL::route("index")}}'; return false;" value="Return to Request Form">
+        		</fieldset>
+	        </form>
+
           @endif
           @include('includes/bottomNav')
         </article>

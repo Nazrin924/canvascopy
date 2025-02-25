@@ -12,6 +12,9 @@
 			<li>Last Name: {{$lastName}}</li>
 			<li>Email: {{$email}}</li>
 		</ul>
+		
+		<p>If you have not already done so, you must configure Two-Step authentication (DUO) for your Cornell NetID. 
+		You will need to do so prior to log in to Canvas@Cornell. Please see <a href="https://it.cornell.edu/twostep/get-started-two-step-login-quick-guide">Get Started with Two-Step Login: Quick Guide</a></p>
 
 		<p>To access Canvas@Cornell, visit <a href="{{env('BB_URL')}}">{{env('BB_URL')}}</a>
 			 and log in with your Cornell credentials.</p>

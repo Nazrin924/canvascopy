@@ -38,7 +38,18 @@
 
 							<fieldset>
 
-								<label class="required @if($errors->has('txtCourseID')) error @endif" for="txtCourseID">Desired Course Short Name</label>
+								<label class="required @if($errors->has('txtCourseName')) error @endif" for="txtCourseName">Canvas Course Name</label>
+								<div class="input @if($errors->has('txtCourseName')) error @endif">
+									<input @if($errors->has('txtCourseName')) aria-invalid="true" @endif type="text" class="medium" aria-required="true" id="txtCourseName" name="txtCourseName" value="{{Session::has('txtCourseName')? Session::get('txtCourseName'):old('txtCourseName')}}">
+									<div class="form-message">
+										@if($errors->has('txtCourseName'))
+                      {{$errors->first('txtCourseName')}}
+										@else
+                      (e.g. Research Study: Health Communication)
+                    @endif</div>
+									</div>
+									
+								<label class="required @if($errors->has('txtCourseID')) error @endif" for="txtCourseID">Canvas Course Short Name</label>
 								<div class="input @if($errors->has('txtCourseID')) error @endif">
 									<input type="text" @if($errors->has('txtCourseID')) aria-invalid="true" @endif class="medium" aria-required="true" id="txtCourseID" name="txtCourseID" value="{{Session::has('txtCourseID')? Session::get('txtCourseID'):old('txtCourseID')}}">
 									<div class="form-message">
@@ -47,21 +58,10 @@
 										@elseif(isset($error))
                       {{$error}}
 										@else
-                      (e.g. bio1010 or workshop01)
+                      (e.g. Research Communication Spring 2024)
 										@endif
 									</div>
-								</div>
-
-								<label class="required @if($errors->has('txtCourseName')) error @endif" for="txtCourseName">Desired Course Name</label>
-								<div class="input @if($errors->has('txtCourseName')) error @endif">
-									<input @if($errors->has('txtCourseName')) aria-invalid="true" @endif type="text" class="medium" aria-required="true" id="txtCourseName" name="txtCourseName" value="{{Session::has('txtCourseName')? Session::get('txtCourseName'):old('txtCourseName')}}">
-									<div class="form-message">
-										@if($errors->has('txtCourseName'))
-                      {{$errors->first('txtCourseName')}}
-										@else
-                      (e.g. Introduction to Biology)
-                    @endif</div>
-									</div>
+								</div>									
 
 								<label class="required @if($errors->has('txtLastName')) error @endif" for="txtLastName">Instructor's Last Name</label>
 								<div class="input @if($errors->has('txtLastName')) error @endif">
@@ -70,33 +70,11 @@
 										@if($errors->has('txtLastName'))
                       {{$errors->first('txtLastName')}}
                     @else
-                      (No spaces or special characters  – <br>must contain only A-z, 0-9, -, ., or _)
+                     
                     @endif
 									</div>
 								</div>
 
-								<label class="required" for="semester">Semester</label>
-								<div class="input required">
-									<select id="semester" name="semester" class="small">
-										<option value='Summer'>Summer</option>
-										<option value='Winter'>Winter</option>
-										<option value='Spring'>Spring</option>
-										<option value='Fall'>Fall</option>
-										<option value='NA' selected>N/A</option>
-									</select>
-									<select title="Year" name="year" class="mini">
-										<?php
-											$date = getdate();
-											$yearNow = $date["year"];
-											$yearOne = $yearNow + 1;
-											$yearTwo = $yearNow + 2;
-										?>
-										<option value='{{$yearNow}}'>{{$yearNow}}</option>
-										<option value='{{$yearOne}}'>{{$yearOne}}</option>
-										<option value='{{$yearTwo}}'>{{$yearTwo}}</option>
-										<option value='NA' selected>N/A</option>
-									</select>
-								</div>
 
 							</fieldset>
 
