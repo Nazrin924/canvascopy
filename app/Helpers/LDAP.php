@@ -146,6 +146,8 @@ class LDAP
                 'canCreateSite'=>$canCreateCourse,
                 'emplid'=>$emplid
             );
+        } else {
+            return view('accountMissingInfoError');
         }
         return $result;
     }
