@@ -21,7 +21,7 @@
                 <h2 >Error</h2>
 
                 <p>An error occurred while trying to create your Canvas user account. We cannot proceed with this request.</p>
-                <p>Please contact canvas@cornell.edu for assistance.</p>
+                <p>Please contact <a href=mailto:{{env('EMAIL_ADMIN')}}>{{env('EMAIL_ADMIN')}}</a> for assistance.</p>
                 <p></p>
 
 

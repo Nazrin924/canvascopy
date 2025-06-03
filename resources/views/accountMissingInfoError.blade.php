@@ -21,7 +21,7 @@
                 <h2 >Error</h2>
 
                 <p>We could not detect an active Cornell email address for your NetID and cannot proceed with this request.</p>
-                <p>Please contact canvas@cornell.edu for assistance.</p>
+                <p>Please contact <a href=mailto:{{env('EMAIL_ADMIN')}}>{{env('EMAIL_ADMIN')}}</a> for assistance.</p>
                 <p></p>
 
 
