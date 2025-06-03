@@ -61,7 +61,7 @@ class AccountController extends Controller
     }
 
 		if(!session()->get("canCreateUser")) {
-			return view("accountError");
+			return view("accountExists");
     }
 
 		return view('createAccount', [
@@ -116,11 +116,11 @@ class AccountController extends Controller
         Queue::push(new DoAccountCreation($netID, $firstName, $lastName, $email, $realm));
 
       } catch(\Exception $e) {
-        return view('accountError');
+        return view('accountSystemError');
       }
     }
     else {
-      return view('accountError');
+      return view('accountExists');
     }
 
 		session()->put('canCreateUser', false);

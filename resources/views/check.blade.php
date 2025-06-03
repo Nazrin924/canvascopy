@@ -21,11 +21,10 @@
 					<h2>Welcome <span style="color: blue;">{{$name}}</span>.</h2>
 						<p>This request form can be used to create courses, including for Research or Independent Study. All other course offerings are automatically created in Canvas each semester. </p>
 						<p>Please login at <a target="_blank" href='{{env('BB_URL')}}'>canvas.cornell.edu</a> to verify if your course has already been created.
-						<p>Canvas course sites requested through this tool must comply with Canvas@Cornell use policies [link -- <a target="_blank" href='{{env('SITE_CREATION_POLICIES_URL')}}'>{{env('SITE_CREATION_POLICIES_URL')}}</a> ]. 
+						<p>Canvas course sites requested through this tool must comply with <a target="_blank" href='{{env('SITE_CREATION_POLICIES_URL')}}'>Canvas@Cornell use policies</a>. 
 						This tool can only be used to create course sites for Cornell Faculty, staff and students. If you have questions about the intended audience for your course site, please contact canvas@cornell.edu.
 						</p>
-						<p>Any course site requested using this tool will require manually enrolling students and other users. For instructions on creating a course with managed enrollment, visit
-							<a target="_blank" href='{{env('SITE_CREATION_URL')}}'>{{env('SITE_CREATION_URL')}}</a>
+                        <p>Any course site requested using this tool will require manually enrolling students and other users.
 						</p>
 						<form class="form-basic"><fieldset class="submit">
 							<input type="submit" value='Continue with Request'
