@@ -121,32 +121,25 @@ class CourseController extends Controller
 	 */
 	public function courseInfo(Request $request)
 	{
-		$yearNow = getdate()["year"];
-		$yearOne = $yearNow + 1;
-		$yearTwo = $yearNow + 2;
 
 		$validator = Validator::make($request->all(), [
-			'txtCourseID'   => ['required', 'regex:/^[A-Za-z0-9\-_]+$/', 'max:25'],
-			'txtCourseName' => 'required|string|max:128',
+			'txtCourseID'   => ['required', 'regex:/^[A-Za-z0-9\-_\s]+$/', 'max:150'],
+			'txtCourseName' => 'required|string|max:255',
       'txtLastName'   => [
         'required',
         'string',
-        'max:25',
+        'max:29',
         'regex:/^[A-Za-z0-9\-_.]+$/'
-      ],
-			'semester'      => ['required', "regex:/^(Summer|Winter|Spring|Fall|NA)$/"],
-			'year'          => ['required', "regex:/^(NA|$yearNow|$yearOne|$yearTwo)$/"]
+      ]
 		], [
 			'txtCourseID.required'   => 'The courseID field is required.',
 			'txtCourseID.regex'      => 'The courseID must contain only A-z, 0-9, -, or _',
-			'txtCourseID.max'        => 'The courseID must contain less than 25 characters.',
-			'txtCourseName.max'      => 'The course name must contain less than 128 characters.',
-			'txtLastName.max'        => 'The last name must be less than 25 characters',
+			'txtCourseID.max'        => 'The courseID must contain less than 150 characters.',
+			'txtCourseName.max'      => 'The course name must contain less than 255 characters.',
+			'txtLastName.max'        => 'The last name must be less than 29 characters',
       'txtLastName.regex'      => 'The last name must contain only A-z, 0-9, -, ., or _',
 			'txtCourseName.required' => 'The course name field is required.',
-			'txtLastName.required'   => 'The last name field is required',
-			'semester.regex'         => 'Please select one of the provided terms.',
-			'year.regex'             => 'Please select one of the provided years.'
+			'txtLastName.required'   => 'The last name field is required'
 		]);
 
 		if($validator->fails()) {
@@ -190,22 +183,9 @@ class CourseController extends Controller
 		$confirmedCourse['courseID'] = $request->get('txtCourseID');
 		$confirmedCourse['courseName'] = $request->get('txtCourseName');
 		$confirmedCourse['lastName'] = $request->get('txtLastName');
-		$confirmedCourse['semester'] = $request->get('semester');
-		$confirmedCourse['year'] = $request->get('year');
 
 		$confirmedCourse['courseIDReal'] = $confirmedCourse['courseID']."-".$confirmedCourse['lastName'];
 		$confirmedCourse['courseIDReal'] = preg_replace("/'/", "", $confirmedCourse["courseIDReal"]);
-		if($confirmedCourse['semester'] !="NA") {
-			$confirmedCourse['courseIDReal'] .= "-";
-            $confirmedCourse['courseIDReal'] .= $confirmedCourse['semester']=="Fall"?"FA":"";
-            $confirmedCourse['courseIDReal'] .= $confirmedCourse['semester']=="Spring"?"SP":"";
-            $confirmedCourse['courseIDReal'] .= $confirmedCourse['semester']=="Summer"?"SU":"";
-            $confirmedCourse['courseIDReal'] .= $confirmedCourse['semester']=="Winter"?"WI":"";
-		}
-        if($confirmedCourse['year'] !="NA") {
-            $confirmedCourse['courseIDReal'] .= "-";
-            $confirmedCourse['courseIDReal'] .= $confirmedCourse['year']!="NA"?$confirmedCourse['year']:"";
-        }
 
 		session()->put("confirmedCourse", $confirmedCourse);
 		return view('confirm', [
@@ -248,8 +228,6 @@ class CourseController extends Controller
 			session()->flash('txtCourseName',$confirmedCourse['courseName']);
 			session()->flash('txtCourseID',$confirmedCourse['courseID']);
 			session()->flash('txtLastName',$confirmedCourse['lastName']);
-			session()->flash('semester',$confirmedCourse['semester']);
-			session()->flash('year',$confirmedCourse['year']);
 
 			return Redirect::to('courseInfo');
 		}
@@ -265,8 +243,6 @@ class CourseController extends Controller
         session()->flash('txtCourseName',$confirmedCourse['courseName']);
         session()->flash('txtCourseID',$confirmedCourse['courseID']);
         session()->flash('txtLastName',$confirmedCourse['lastName']);
-        session()->flash('semester',$confirmedCourse['semester']);
-        session()->flash('year',$confirmedCourse['year']);
 
         return view("badCourseID");
     }

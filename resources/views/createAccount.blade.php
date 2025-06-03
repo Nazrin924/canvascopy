@@ -46,15 +46,18 @@
 				</fieldset>
 			</form>
 		@else
-			<h2>Your request has been successfully submitted.</h2>
+			<h2>Your request for a Canvas@Cornell account has been submitted.</h2>
 			<p>You will be notified when your request has been processed, typically within 30 minutes. A confirmation email will be sent to: {{$email}}.
+			</p>
+			<p>If you have not already done so, you must configure Two-Step authentication (DUO) for your Cornell NetID. You will need to do so prior to log in to Canvas@Cornell. 
+			Please see <a href="https://it.cornell.edu/twostep/get-started-two-step-login-quick-guide">Get Started with Two-Step Login: Quick Guide</a>
 			</p>
 			<p>To access Canvas@Cornell, visit <a target="_blank" href='{{env('BB_URL')}}'>{{env('BB_URL')}}</a>
 				and log in with your Cornell credentials.
 			</p>
 			<form class="form-basic">
 				<fieldset class="submit">
-					<input type="submit" onclick="location='{{URL::route("index")}}'; return false;" value="Return to Request Options">
+					<input type="submit" onclick="location='{{URL::route("index")}}'; return false;" value="Return to Request Form">
 				</fieldset>
 			</form>
 		@endif

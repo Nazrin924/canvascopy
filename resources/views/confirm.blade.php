@@ -26,11 +26,11 @@
 					</p>
 					<form action="confirmation" method="get" class="form-basic -form-compact -topline">
 						<fieldset>
-							<label for="txtCourseName">The name of your site</label>
+							<label for="txtCourseName">Canvas Course Name</label>
 							<div class="input">
 								<input class="medium" type="text" id="txtCourseName" readonly name="txtCourseName" value="{{$courseName}}">
 							</div>
-							<label for="txtCourseID">Course-ID will appear as</label>
+							<label for="txtCourseID">Canvas Course Short Name</label>
 							<div class="input">
 								<input class="medium" type="text" id="txtCourseID" readonly name="txtCourseID" value="{{$courseID}}">
 							</div>
