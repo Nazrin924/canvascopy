@@ -62,11 +62,15 @@ class DoAccountCreation extends Job implements ShouldQueue
   	 public function handle(Mailer $mailer)
   	{
   		$attempts = $this->attempts();
+		$fromEmail = env('MAIL_FROM_ADDRESS');
+        $fromName  = env('MAIL_FROM_NAME');
+		
   		// Create account
   		try {
     		if(CanvasAPI::findUser($this->netID)) {
     			 Log::info("CanvasAPI::createUser - the account for $this->netID was created");
                  $netID = $this->netID;
+				 $email = $this->email;
                  //Adding emailing here
                  Mail::send('emails.AccountCreated',
                      array(
@@ -74,10 +78,10 @@ class DoAccountCreation extends Job implements ShouldQueue
                         'netID' => $this->netID,
                         'lastName' => $this->lastName,
                         'email' => $this->email),
-                     function($message) use ($netID){
+                     function($message) use ($netID, $email, $fromEmail, $fromName) {
                         $message
-                            ->from(env('EMAIL_ADMIN'), "Center for Teaching Innovation")
-                            ->to($this->email)
+                            ->from($fromEmail, $fromName)
+                            ->to($email)
                             ->subject("Canvas@Cornell User Account");
                      }
                 );
@@ -102,7 +106,9 @@ class DoAccountCreation extends Job implements ShouldQueue
 
   		if($this->attempts() > env('NUM_ATTEMPTS')) {
             //Log::info("Got to the attempts checkup $attempts");
+
   			$netID = $this->netID;
+			$email = $this->email;
             try {
         			 $mailer->send('emails.AccountFailed',
                         array(
@@ -111,10 +117,10 @@ class DoAccountCreation extends Job implements ShouldQueue
                             'lastName' => $this->lastName,
                             'email' => $this->email
                         ),
-                        function($message) use ($netID){
+                        function($message) use ($netID, $email, $fromEmail, $fromName) {
 
                                  $message
-                                     ->from(env('EMAIL_ADMIN'), "Center for Teaching Innovation")
+                                     ->from($fromEmail, $fromName)
                                      ->to(env('EMAIL_ADMIN'))
                                      ->subject("CanvasTools - User Account Creation Failure");
                         });
@@ -136,6 +142,7 @@ class DoAccountCreation extends Job implements ShouldQueue
   		else {
   			session()->put('bbUserId', CanvasAPI::findUser($this->netID));
   			$netID = $this->netID;
+			$email = $this->email;
             try {
     			 Mail::send('emails.AccountCreated',
                     array(
@@ -144,11 +151,11 @@ class DoAccountCreation extends Job implements ShouldQueue
                         'lastName' => $this->lastName,
     					'email' => $this->email
                     ),
-                    function($message) use ($netID) {
+                    function($message) use ($netID, $email, $fromEmail, $fromName) {
 
     				    $message
-      				        ->from(env('EMAIL_ADMIN'), "Center for Teaching Innovation")
-      				        ->to($this->email)
+      				        ->from($fromEmail, $fromName)
+      				        ->to($email)
       				      ->subject("Canvas@Cornell User Account Creation");
                     });
             } catch(Exception $e) {

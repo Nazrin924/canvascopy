@@ -15,6 +15,29 @@ Route::get('/', function () {
 });
 
 */
+// Route::get('/testemail', function () {
+//       $fromEmail = env('MAIL_FROM_ADDRESS');
+//       $fromName  = env('MAIL_FROM_NAME');
+      
+//       $firstName = "Irina";
+//       $netID = "ivn2";
+//       $lastName = "Naydich";
+//       $email ="ivn2@cornell.edu";
+//       Mail::send('emails.AccountCreated',
+//                      array(
+//                         'firstName' => $firstName,
+//                         'netID' => $netID,
+//                         'lastName' => $lastName,
+//                         'email' => $email),
+//                      function($message) use ($netID, $fromEmail, $fromName, $email){
+//                         $message
+//                             ->from($fromEmail, $fromName)
+//                             ->to($email)
+//                             ->subject("Canvas@Cornell User Account");
+//                      }
+//                 );
+//     return '***Hello World';
+// });
 
 Route::group(["middleware" => "userrole"], function() {
     Route::get('/', ['as' => 'index', 'uses' => 'WelcomeController@index']);

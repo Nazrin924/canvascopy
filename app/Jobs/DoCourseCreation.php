@@ -108,17 +108,19 @@ class DoCourseCreation extends Job implements ShouldQueue
   		// course exists - send out email to client
   		else {
   			$netID = $this->netID;
-        $email = $this->email;
+        	$email = $this->email;
+			$fromEmail = env('MAIL_FROM_ADDRESS');
+			$fromName  = env('MAIL_FROM_NAME');
         try {
-  				Mail::send('emails.BlackboardSiteInfo',
-  	        array('netID' => $this->netID,
-  	          'courseID' => $this->courseID,
-  	          'courseName' => $this->courseName,
-  	          'firstName' => $this->firstName),
-  	        function($message) use ($netID, $email){
+  			Mail::send('emails.BlackboardSiteInfo',
+				array('netID' => $this->netID,
+				'courseID' => $this->courseID,
+				'courseName' => $this->courseName,
+				'firstName' => $this->firstName),
+  	        function($message) use ($netID, $email, $fromEmail, $fromName){
 
   	  				$message
-  	  					->from(env('EMAIL_ADMIN'), "Center for Teaching Innovation")
+  	  					->from($fromEmail, $fromName)
   	  					->to($email)
   	  					->subject("Canvas@Cornell - Course Creation");
   	        });
