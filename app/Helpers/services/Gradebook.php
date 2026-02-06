@@ -1,4 +1,7 @@
-<?php namespace App\Helpers\services; 
+<?php
+
+namespace App\Helpers\services;
+
 /**
  * BbPHP: Blackboard Web Services Library for PHP
  * Copyright (C) 2011 by St. Edward's University (www.stedwards.edu)
@@ -9,13 +12,11 @@
  * This is a stub class for service calls made under the Gradebook service.
  *
  * @author johns
- *
  */
-class Gradebook extends Service {
-
-	public function __call($method, $args = null) {
-		return parent::buildBody($method, 'Gradebook', $args[0]);
-	}
+class Gradebook extends Service
+{
+    public function __call($method, $args = null)
+    {
+        return parent::buildBody($method, 'Gradebook', $args[0]);
+    }
 }
-
-?>

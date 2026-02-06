@@ -1,9 +1,6 @@
-<?php namespace App\Http\Controllers;
+<?php
 
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-
-use Illuminate\Http\Request;
+namespace App\Http\Controllers;
 
 use Response;
 
@@ -18,36 +15,37 @@ use Response;
  */
 class LogController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     *
+     * @return Response
+     */
+    public function index()
+    {
+        if (session()->get('isTester')) {
+            $logs = scandir('../storage/logs');
 
-	/**
-	 * Display a listing of the resource.
-	 *
-	 * @return Response
-	 */
-	public function index()
-	{
-    if(session()->get('isTester')) {
-  		$logs = scandir("../storage/logs");
-  		return view('logfiles', ['logs' => $logs]);
+            return view('logfiles', ['logs' => $logs]);
+        }
+
+        return redirect()->route('index');
     }
-    return redirect()->route('index');
-	}
 
-	/**
-	 * Display the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function show($id)
-	{
-    if(session()->get('isTester')) {
-  		return Response::make(file_get_contents("../storage/logs/$id"), 200, [
-  				'Content-Type' => 'text',
-  				'Content-Disposition' => 'inline; filename="'.$id.'"'
-  			]);
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return Response
+     */
+    public function show($id)
+    {
+        if (session()->get('isTester')) {
+            return Response::make(file_get_contents("../storage/logs/$id"), 200, [
+                'Content-Type' => 'text',
+                'Content-Disposition' => 'inline; filename="'.$id.'"',
+            ]);
+        }
+
+        return redirect()->route('index');
     }
-    return redirect()->route('index');
-	}
-
 }

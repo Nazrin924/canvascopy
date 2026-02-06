@@ -1,4 +1,7 @@
-<?php namespace App\Helpers\services;
+<?php
+
+namespace App\Helpers\services;
+
 /*
  * BbPHP: Blackboard Web Services Library for PHP
  * Copyright (C) 2011 by St. Edward's University (www.stedwards.edu)
@@ -11,24 +14,24 @@
  * @author johns
  *
  */
-class Announcement extends Service {
+class Announcement extends Service
+{
+    public function getCourseAnnouncements($args)
+    {
+        $body = '<ns1:courseId>'.$args['courseId'].'</ns1:courseId>';
+        $body .= '<ns1:filter xmlns:ns2="http://announcement.ws.blackboard/xsd">';
 
-	public function getCourseAnnouncements($args) {
-		$body = '<ns1:courseId>' . $args['courseId'] . '</ns1:courseId>';
-		$body .= '<ns1:filter xmlns:ns2="http://announcement.ws.blackboard/xsd">';
+        foreach ($args['filter'] as $key => $arg) {
+            $body .= '<ns2:'.$key.'>'.$arg.'</ns2:'.$key.'>';
+        }
 
-		foreach ($args['filter'] as $key => $arg) {
-			$body .= '<ns2:' . $key . '>' . $arg . '</ns2:' . $key . '>';
-		}
+        $body .= '</ns1:filter>';
 
-		$body .= '</ns1:filter>';
+        return parent::buildBody('getCourseAnnouncements', 'Announcement', $body);
+    }
 
-		return parent::buildBody("getCourseAnnouncements", "Announcement", $body);
-	}
-
-	public function __call($method, $args = null) {
-		return parent::buildBody($method, 'Announcement', $args[0]);
-	}
+    public function __call($method, $args = null)
+    {
+        return parent::buildBody($method, 'Announcement', $args[0]);
+    }
 }
-
-?>

@@ -1,4 +1,7 @@
-<?php namespace App\Helpers\services;
+<?php
+
+namespace App\Helpers\services;
+
 /**
  * BbPHP: Blackboard Web Services Library for PHP
  * Copyright (C) 2011 by St. Edward's University (www.stedwards.edu)
@@ -9,48 +12,50 @@
  * This is a stub class for service calls made under the Course service.
  *
  * @author johns
- *
  */
-class Course extends Service {
+class Course extends Service
+{
+    public function getCourse($args)
+    {
+        $body = '<ns1:filter xmlns:ns2="http://course.ws.blackboard/xsd">';
 
-	public function getCourse($args) {
-		$body = '<ns1:filter xmlns:ns2="http://course.ws.blackboard/xsd">';
+        foreach ($args as $key => $arg) {
+            $body .= '<ns2:'.$key.'>'.$arg.'</ns2:'.$key.'>';
+        }
 
-		foreach ($args as $key => $arg) {
-			$body .= '<ns2:' . $key . '>' . $arg . '</ns2:' . $key . '>';
-		}
+        $body .= '</ns1:filter>';
 
-		$body .= '</ns1:filter>';
+        return parent::buildBody('getCourse', 'Course', $body);
+    }
 
-		return parent::buildBody("getCourse", "Course", $body);
-	}
+    public function createCourse($args)
+    {
+        $body = '<ns1:c>';
 
-	public function createCourse($args) {
-		$body = '<ns1:c>';
+        foreach ($args as $key => $arg) {
+            $body .= '<ns1:'.$key.'>'.$arg.'</ns1:'.$key.'>';
+        }
 
-		foreach ($args as $key => $arg) {
-			$body .= '<ns1:' . $key . '>' . $arg . '</ns1:' . $key . '>';
-		}
+        $body .= '</ns1:c>';
 
-		$body .= '</ns1:c>';
+        return parent::buildBody('createCourse', 'Course', $body);
+    }
 
-		return parent::buildBody("createCourse", "Course", $body);
-	}
+    public function saveCourse($args)
+    {
+        $body = '<ns1:c>';
 
-	public function saveCourse($args) {
-		$body = '<ns1:c>';
+        foreach ($args as $key => $arg) {
+            $body .= '<ns1:'.$key.'>'.$arg.'</ns1:'.$key.'>';
+        }
 
-		foreach ($args as $key => $arg) {
-			$body .= '<ns1:' . $key . '>' . $arg . '</ns1:' . $key . '>';
-		}
+        $body .= '</ns1:c>';
 
-		$body .= '</ns1:c>';
+        return parent::buildBody('saveCourse', 'Course', $body);
+    }
 
-		return parent::buildBody("saveCourse", "Course", $body);
-	}
-
-	public function __call($method, $args = null) {
-		return parent::buildBody($method, "Course", $args[0]);
-	}
+    public function __call($method, $args = null)
+    {
+        return parent::buildBody($method, 'Course', $args[0]);
+    }
 }
-?>
