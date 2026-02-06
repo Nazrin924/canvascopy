@@ -15,9 +15,9 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        'App\Console\Commands\Inspire',
-        'App\Console\Commands\courseCreationTest',
-        'App\Console\Commands\accountCreationTest',
+        \App\Console\Commands\Inspire::class,
+        \App\Console\Commands\courseCreationTest::class,
+        \App\Console\Commands\accountCreationTest::class,
     ];
 
     /**
