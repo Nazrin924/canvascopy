@@ -1,5 +1,13 @@
 <?php
 
+use App\Http\Controllers\AccountController;
+use App\Http\Controllers\CourseController;
+use App\Http\Controllers\LogController;
+use App\Http\Controllers\TesterController;
+use App\Http\Controllers\WelcomeController;
+use App\Http\Controllers\debugController;
+use Illuminate\Support\Facades\Route;
+
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -12,31 +20,31 @@
 */
 
 Route::middleware('userrole')->group(function () {
-    Route::get('/', 'WelcomeController@index')->name('index');
+    Route::get('/', [WelcomeController::class, 'index'])->name('index');
 
-    Route::get('createAccount', 'AccountController@account')->name('createAccount');
+    Route::get('createAccount', [AccountController::class, 'account'])->name('createAccount');
 
-    Route::post('createAccount', 'AccountController@create')->name('postCreateAccount');
+    Route::post('createAccount', [AccountController::class, 'create'])->name('postCreateAccount');
 
-    Route::get('createCourse', 'CourseController@check')->name('createCourse');
+    Route::get('createCourse', [CourseController::class, 'check'])->name('createCourse');
 
-    Route::get('copyright', 'CourseController@copyright')->name('copyright');
+    Route::get('copyright', [CourseController::class, 'copyright'])->name('copyright');
 
-    Route::post('copyright', 'CourseController@copyright')->name('copyright');
+    Route::post('copyright', [CourseController::class, 'copyright'])->name('copyright');
 
-    Route::get('courseInfo', 'CourseController@info')->name('courseInfo');
+    Route::get('courseInfo', [CourseController::class, 'info'])->name('courseInfo');
 
-    Route::post('courseInfo', 'CourseController@courseInfo')->name('courseInfoPost');
+    Route::post('courseInfo', [CourseController::class, 'courseInfo'])->name('courseInfoPost');
 
-    Route::get('confirmation', 'CourseController@confirmation')->name('confirmation');
+    Route::get('confirmation', [CourseController::class, 'confirmation'])->name('confirmation');
 
-    Route::get('tester', 'TesterController@process')->name('tester');
+    Route::get('tester', [TesterController::class, 'process'])->name('tester');
 
-    Route::get('badIDRedirect', 'CourseController@badIDRedirect')->name('badIDRedirect');
+    Route::get('badIDRedirect', [CourseController::class, 'badIDRedirect'])->name('badIDRedirect');
 
-    Route::get('log', 'LogController@index')->name('log');
+    Route::get('log', [LogController::class, 'index'])->name('log');
 
-    Route::get('log/{id}', 'LogController@show')->name('showLog');
+    Route::get('log/{id}', [LogController::class, 'show'])->name('showLog');
 });
 
 Route::get('ldapError', function () {
@@ -48,8 +56,8 @@ Route::get('blackboardError', function () {
     })->name('blackboardError');
 
 Route::middleware('test')->group(function () {
-    Route::get('debug', 'debugController@testSomething');
+    Route::get('debug', [debugController::class, 'testSomething']);
     // Route::get('debug2', ['uses' => 'debugController@testSomething2']);
     // Route::get('debug3', ['uses' => 'debugController@testSomething3']);
-    Route::get('ADgroups', 'debugController@testSomething4');
+    Route::get('ADgroups', [debugController::class, 'testSomething4']);
 });
