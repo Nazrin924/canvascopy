@@ -18,7 +18,7 @@ Route::get('/', function () {
 // Route::get('/testemail', function () {
 //       $fromEmail = env('MAIL_FROM_ADDRESS');
 //       $fromName  = env('MAIL_FROM_NAME');
-      
+
 //       $firstName = "Irina";
 //       $netID = "ivn2";
 //       $lastName = "Naydich";
@@ -39,57 +39,57 @@ Route::get('/', function () {
 //     return '***Hello World';
 // });
 
-Route::group(["middleware" => "userrole"], function() {
+Route::group(['middleware' => 'userrole'], function () {
     Route::get('/', ['as' => 'index', 'uses' => 'WelcomeController@index']);
 
     Route::get('createAccount', [
         'as' => 'createAccount',
-        'uses' => 'AccountController@account'
+        'uses' => 'AccountController@account',
     ]);
 
     Route::post('createAccount', [
         'as' => 'postCreateAccount',
-        'uses' => 'AccountController@create'
+        'uses' => 'AccountController@create',
     ]);
 
     Route::get('createCourse', [
         'as' => 'createCourse',
-        'uses' => 'CourseController@check'
+        'uses' => 'CourseController@check',
     ]);
 
     Route::get('copyright', [
         'as' => 'copyright',
-        'uses' => 'CourseController@copyright'
+        'uses' => 'CourseController@copyright',
     ]);
 
     Route::post('copyright', [
         'as' => 'copyright',
-        'uses' => 'CourseController@copyright'
+        'uses' => 'CourseController@copyright',
     ]);
 
     Route::get('courseInfo', [
         'as' => 'courseInfo',
-        'uses' => 'CourseController@info'
+        'uses' => 'CourseController@info',
     ]);
 
     Route::post('courseInfo', [
         'as' => 'courseInfoPost',
-        'uses' => 'CourseController@courseInfo'
+        'uses' => 'CourseController@courseInfo',
     ]);
 
     Route::get('confirmation', [
         'as' => 'confirmation',
-        'uses' => 'CourseController@confirmation'
+        'uses' => 'CourseController@confirmation',
     ]);
 
     Route::get('tester', [
         'as' => 'tester',
-        'uses' => 'TesterController@process'
+        'uses' => 'TesterController@process',
     ]);
 
     Route::get('badIDRedirect', [
         'as' => 'badIDRedirect',
-        'uses' => 'CourseController@badIDRedirect'
+        'uses' => 'CourseController@badIDRedirect',
     ]);
 
     Route::get('log', ['as' => 'log', 'uses' => 'LogController@index']);
@@ -99,29 +99,28 @@ Route::group(["middleware" => "userrole"], function() {
 
 Route::get('ldapError', [
     'as' => 'ldapError',
-    function() {
+    function () {
         return view('ldapError');
-    }
+    },
 ]);
 
 Route::get('blackboardError', [
     'as' => 'blackboardError',
-    function() {
+    function () {
         return view('blackboardError');
-    }
+    },
 ]);
 
 Route::get('badCourseID', [
     'as' => 'badCourseID',
-    function() {
+    function () {
         return view('badCourseID');
-    }
+    },
 ]);
 
-Route::group(["middleware" => "test"], function() {
+Route::group(['middleware' => 'test'], function () {
     Route::get('debug', ['uses' => 'debugController@testSomething']);
-    //Route::get('debug2', ['uses' => 'debugController@testSomething2']);
-    //Route::get('debug3', ['uses' => 'debugController@testSomething3']);
+    // Route::get('debug2', ['uses' => 'debugController@testSomething2']);
+    // Route::get('debug3', ['uses' => 'debugController@testSomething3']);
     Route::get('ADgroups', ['uses' => 'debugController@testSomething4']);
 });
-

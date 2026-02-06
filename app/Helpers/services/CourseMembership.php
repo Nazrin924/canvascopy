@@ -1,4 +1,7 @@
-<?php namespace App\Helpers\services;
+<?php
+
+namespace App\Helpers\services;
+
 /**
  * BbPHP: Blackboard Web Services Library for PHP
  * Copyright (C) 2011 by St. Edward's University (www.stedwards.edu)
@@ -9,36 +12,39 @@
  * This is a stub class for service calls made under the CourseMembership service.
  *
  * @author johns
- *
  */
-class CourseMembership extends Service {
+class CourseMembership extends Service
+{
+    public function getCourseMembership($args)
+    {
+        $body = '<ns1:courseId>'.$args['courseId'].'</ns1:courseId>';
+        $body .= '<ns1:f xmlns:ns2="http://coursemembership.ws.blackboard/xsd">';
 
-	public function getCourseMembership($args) {
-		$body = '<ns1:courseId>' . $args['courseId'] . '</ns1:courseId>';
-		$body .= '<ns1:f xmlns:ns2="http://coursemembership.ws.blackboard/xsd">';
+        foreach ($args as $key => $arg) {
+            if ($key != 'courseId') {
+                $body .= '<ns2:'.$key.'>'.$arg.'</ns2:'.$key.'>';
+            }
+        }
 
-		foreach ($args as $key => $arg) {
-			if($key != "courseId") $body .= '<ns2:' . $key . '>' . $arg . '</ns2:' . $key . '>';
-		}
+        $body .= '</ns1:f>';
 
-		$body .= '</ns1:f>';
-		return parent::buildBody("getCourseMembership", "CourseMembership", $body);
-	}
+        return parent::buildBody('getCourseMembership', 'CourseMembership', $body);
+    }
 
-	public function saveCourseMembership($args) {
-		$body = '<ns1:courseId>' . $args['courseId'] . '</ns1:courseId>';
-		$body .= '<ns1:cmArray xmlns:ns2="http://coursemembership.ws.blackboard/xsd">';
-		foreach ($args as $key => $arg) {
-			$body .= '<ns2:' . $key . '>' . $arg . '</ns2:' . $key . '>';
-		}
-		$body .= '</ns1:cmArray>';
+    public function saveCourseMembership($args)
+    {
+        $body = '<ns1:courseId>'.$args['courseId'].'</ns1:courseId>';
+        $body .= '<ns1:cmArray xmlns:ns2="http://coursemembership.ws.blackboard/xsd">';
+        foreach ($args as $key => $arg) {
+            $body .= '<ns2:'.$key.'>'.$arg.'</ns2:'.$key.'>';
+        }
+        $body .= '</ns1:cmArray>';
 
-		return parent::buildBody("saveCourseMembership", "CourseMembership", $body);
-	}
+        return parent::buildBody('saveCourseMembership', 'CourseMembership', $body);
+    }
 
-	public function __call($method, $args = null) {
-		return parent::buildBody($method, 'CourseMembership', $args[0]);
-	}
+    public function __call($method, $args = null)
+    {
+        return parent::buildBody($method, 'CourseMembership', $args[0]);
+    }
 }
-
-?>

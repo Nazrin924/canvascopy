@@ -2,9 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Jobs\DoAccountCreation;
-
+use Illuminate\Console\Command;
 use Queue;
 
 class accountCreationTest extends Command
@@ -41,12 +40,12 @@ class accountCreationTest extends Command
     public function handle()
     {
         $date = getdate();
-        $mon = $date["mon"];
-        $mday = $date["mday"];
-        $year = $date["year"];
-        $sec = $date["seconds"];
-        $min = $date["minutes"];
-        $hr = $date["hours"];
-        Queue::push(new DoAccountCreation("netID$mon$mday$year$hr$min$sec", "bob", "fake", "amg295@cornell.edu", env('CU_REALM')));
+        $mon = $date['mon'];
+        $mday = $date['mday'];
+        $year = $date['year'];
+        $sec = $date['seconds'];
+        $min = $date['minutes'];
+        $hr = $date['hours'];
+        Queue::push(new DoAccountCreation("netID$mon$mday$year$hr$min$sec", 'bob', 'fake', 'amg295@cornell.edu', env('CU_REALM')));
     }
 }

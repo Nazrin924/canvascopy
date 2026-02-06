@@ -1,9 +1,9 @@
 <?php
+
 namespace App\Helpers;
 
-use GuzzleHttp\Client;
-use \App\Helpers\LDAP;
 use Carbon\Carbon;
+use GuzzleHttp\Client;
 
 /**
  * A helper class for dealing with Canvas WebServices
@@ -14,9 +14,8 @@ use Carbon\Carbon;
  *
  * @author Nazrin Tingstrom nst37@cornell.edu
  */
-class CanvasAPI {
-
-
+class CanvasAPI
+{
     /*
     |--------------------------------------------------------------------------
     | Declarations
@@ -27,16 +26,12 @@ class CanvasAPI {
 
     private $apiHost;
 
+    public function __construct()
+    {
 
-
-
-    function __construct() {
-
-        $this->token = env("CVS_WS_TOKEN");
-        $this->apiHost = env("CVS_WS_URL");
+        $this->token = env('CVS_WS_TOKEN');
+        $this->apiHost = env('CVS_WS_URL');
     }
-
-
 
     /*
     |--------------------------------------------------------------------------
@@ -50,33 +45,29 @@ class CanvasAPI {
     /**
      * apiCall() - performs a call to the Canvas API
      *
-     * @param string $method - Request method (e.g. GET, POST, HEAD, etc.)
-     * @param string $params - the relative endpoint URL (e.g. /user, /account)
-     *
-     * @throws
+     * @param  string  $method  - Request method (e.g. GET, POST, HEAD, etc.)
+     * @param  string  $params  - the relative endpoint URL (e.g. /user, /account)
      * @return mixed The decoded data.
      *
+     * @throws
      */
-
-    public function apiCall($method, $params) {
+    public function apiCall($method, $params)
+    {
 
         $client = new Client(['base_uri' => $this->apiHost]);
         $headers = [
-            'Authorization' => 'Bearer ' . $this->token,
-            'Accept'        => 'application/json',
+            'Authorization' => 'Bearer '.$this->token,
+            'Accept' => 'application/json',
             'http_errors' => true,
         ];
 
         // perform the call
         $response = $client->request($method, $params, [
-            'headers' => $headers
+            'headers' => $headers,
         ]);
 
         return json_decode($response->getBody()->getContents(), true);
     }
-
-
-
 
     /*
     |--------------------------------------------------------------------------
@@ -90,42 +81,44 @@ class CanvasAPI {
     /**
      * findUser() - function to check if user exists
      *
-     * @param $netid
+     *
+     * @return bool
      *
      * @throws
-     * @return boolean
      */
-    public static function findUser($netid) {
-        $token = env("CVS_WS_TOKEN");
-        $apiHost = env("CVS_WS_URL");
-        $client = new Client();
-        $userCheck=false;
-        $response = $client->request("GET", $apiHost."accounts/self/users", [
+    public static function findUser($netid)
+    {
+        $token = env('CVS_WS_TOKEN');
+        $apiHost = env('CVS_WS_URL');
+        $client = new Client;
+        $userCheck = false;
+        $response = $client->request('GET', $apiHost.'accounts/self/users', [
             'headers' => [
-                'Authorization' => 'Bearer ' . $token,
-                'Accept'        => 'application/json',
+                'Authorization' => 'Bearer '.$token,
+                'Accept' => 'application/json',
                 'http_errors' => true,
             ],
             'form_params' => [
-                'search_term'   => str_replace("@cumed", "", $netid),
-                'per_page'      => 100,
-            ]
+                'search_term' => str_replace('@cumed', '', $netid),
+                'per_page' => 100,
+            ],
         ]);
         $results = json_decode($response->getBody(), true);
-        
-// Checking login id to see if it matches the given netid since the API calls returns partial matches too so we need to confirm that it is an exact match.
-// Login ids for Weill are emails so we need to match the login id and netid@med.cornell.edu
-    for($i = 0; $i < count($results); $i++) {
-        if(isset($results[$i]["login_id"]) && ($results[$i]["login_id"] ==$netid || $results[$i]["login_id"]==str_replace("@cumed", "", $netid).'@med.cornell.edu' || $results[$i]["login_id"]==str_replace("@cumed", "", $netid).'@qatar-med.cornell.edu')) {
-            $userCheck=true;
+
+        // Checking login id to see if it matches the given netid since the API calls returns partial matches too so we need to confirm that it is an exact match.
+        // Login ids for Weill are emails so we need to match the login id and netid@med.cornell.edu
+        for ($i = 0; $i < count($results); $i++) {
+            if (isset($results[$i]['login_id']) && ($results[$i]['login_id'] == $netid || $results[$i]['login_id'] == str_replace('@cumed', '', $netid).'@med.cornell.edu' || $results[$i]['login_id'] == str_replace('@cumed', '', $netid).'@qatar-med.cornell.edu')) {
+                $userCheck = true;
+            }
         }
-    }
-    if($userCheck){
-        \Log::info("CanvasAPI::findUser - this method was called and $netid exists in Canvas");
+        if ($userCheck) {
+            \Log::info("CanvasAPI::findUser - this method was called and $netid exists in Canvas");
+
             return true;
-        }
-        else {
-        \Log::info("CanvasAPI::findUser - this method was called and $netid does not exist in Canvas");
+        } else {
+            \Log::info("CanvasAPI::findUser - this method was called and $netid does not exist in Canvas");
+
             return false;
         }
     }
@@ -133,73 +126,73 @@ class CanvasAPI {
     /**
      * getUserID() - function to get Canvas user ID given a netid
      *
-     * @param $netid
+     *
+     * @return int
      *
      * @throws
-     * @return int
      */
-    public static function getUserID($netid) {
-        $token = env("CVS_WS_TOKEN");
-        $apiHost = env("CVS_WS_URL");
-        $client = new Client();
-        $userID=0;
-        $response = $client->request("GET", $apiHost."accounts/self/users", [
+    public static function getUserID($netid)
+    {
+        $token = env('CVS_WS_TOKEN');
+        $apiHost = env('CVS_WS_URL');
+        $client = new Client;
+        $userID = 0;
+        $response = $client->request('GET', $apiHost.'accounts/self/users', [
             'headers' => [
-                'Authorization' => 'Bearer ' . $token,
-                'Accept'        => 'application/json',
+                'Authorization' => 'Bearer '.$token,
+                'Accept' => 'application/json',
                 'http_errors' => true,
             ],
             'form_params' => [
-                'search_term'   => str_replace("@cumed", "", $netid),
-                'per_page'      => 100,
-            ]
+                'search_term' => str_replace('@cumed', '', $netid),
+                'per_page' => 100,
+            ],
         ]);
         $results = json_decode($response->getBody(), true);
-        
-// Checking login id to see if it matches the given netid since the API calls returns partial matches too so we need to confirm that it is an exact match.
-// Login ids for Weill are emails so we need to match the login id and netid@med.cornell.edu
-        for($i = 0; $i < count($results); $i++) {
-            if(isset($results[$i]["login_id"]) && ($results[$i]["login_id"] ==$netid || $results[$i]["login_id"]==str_replace("@cumed", "", $netid).'@med.cornell.edu' || $results[$i]["login_id"]==str_replace("@cumed", "", $netid).'@qatar-med.cornell.edu')) {
-                $userID=$results[$i]["id"];
+
+        // Checking login id to see if it matches the given netid since the API calls returns partial matches too so we need to confirm that it is an exact match.
+        // Login ids for Weill are emails so we need to match the login id and netid@med.cornell.edu
+        for ($i = 0; $i < count($results); $i++) {
+            if (isset($results[$i]['login_id']) && ($results[$i]['login_id'] == $netid || $results[$i]['login_id'] == str_replace('@cumed', '', $netid).'@med.cornell.edu' || $results[$i]['login_id'] == str_replace('@cumed', '', $netid).'@qatar-med.cornell.edu')) {
+                $userID = $results[$i]['id'];
             }
         }
-        if($userID!=0){
-                return $userID;
-            }
-            else {
-                return 0;
-            }
+        if ($userID != 0) {
+            return $userID;
+        } else {
+            return 0;
+        }
     }
 
     /**
      * getCourseID() - function to get Canvas course ID given a course code
      *
-     * @param $course_code
+     *
+     * @return int
      *
      * @throws
-     * @return int
      */
-    public static function getCourseID($course_code) {
-        $token = env("CVS_WS_TOKEN");
-        $apiHost = env("CVS_WS_URL");
-        $client = new Client();
-        $response = $client->request("GET", $apiHost."accounts/1/courses", [
+    public static function getCourseID($course_code)
+    {
+        $token = env('CVS_WS_TOKEN');
+        $apiHost = env('CVS_WS_URL');
+        $client = new Client;
+        $response = $client->request('GET', $apiHost.'accounts/1/courses', [
             'headers' => [
-                'Authorization' => 'Bearer ' . $token,
-                'Accept'        => 'application/json',
+                'Authorization' => 'Bearer '.$token,
+                'Accept' => 'application/json',
                 'http_errors' => true,
             ],
             'form_params' => [
-                'search_term'   => $course_code,
-                'per_page'      => 100,
-            ]
+                'search_term' => $course_code,
+                'per_page' => 100,
+            ],
         ]);
         $results = json_decode($response->getBody(), true);
 
-        if(isset($results[0]["id"])) {
-            return $results[0]["id"];
-        }
-        else {
+        if (isset($results[0]['id'])) {
+            return $results[0]['id'];
+        } else {
             return 0;
         }
 
@@ -208,189 +201,193 @@ class CanvasAPI {
     /**
      * findCourse() - function to check if a course exists
      *
-     * @param $courseId
+     *
+     * @return bool
      *
      * @throws
-     * @return boolean
      */
-
-    public static function findCourse($courseId) {
-        $token = env("CVS_WS_TOKEN");
-        $apiHost = env("CVS_WS_URL");
-        $client = new Client();
-        $response = $client->request("GET", $apiHost."accounts/1/courses", [
+    public static function findCourse($courseId)
+    {
+        $token = env('CVS_WS_TOKEN');
+        $apiHost = env('CVS_WS_URL');
+        $client = new Client;
+        $response = $client->request('GET', $apiHost.'accounts/1/courses', [
             'headers' => [
-                'Authorization' => 'Bearer ' . $token,
-                'Accept'        => 'application/json',
+                'Authorization' => 'Bearer '.$token,
+                'Accept' => 'application/json',
                 'http_errors' => true,
             ],
             'form_params' => [
-                'search_term'   => $courseId,
-                'per_page'      => 100,
-            ]
+                'search_term' => $courseId,
+                'per_page' => 100,
+            ],
         ]);
         $results = json_decode($response->getBody(), true);
-        
+
         $arrayLength = count($results);
         $i = 0;
-        while ($i < $arrayLength){        
-            if(isset($results[$i]["id"]) && (strcasecmp($results[$i]["course_code"], $courseId) == 0) ) {
+        while ($i < $arrayLength) {
+            if (isset($results[$i]['id']) && (strcasecmp($results[$i]['course_code'], $courseId) == 0)) {
                 \Log::info("CanvasAPI::findCourse - this method was called and $courseId exists in Canvas");
+
                 return true;
             }
             $i++;
         }
         \Log::info("CanvasAPI::findCourse - this method was called and $courseId does not exist in Canvas");
+
         return false;
     }
 
     /**
      * createUser() - function to create a user
      *
-     * @param $firstName
-     * @param $lastName
-     * @param $email
-     * @param $netid
+     *
+     * @return bool
      *
      * @throws
-     * @return boolean
      */
-    public static function createUser($firstName, $lastName,$email, $netid) {
-        $token = env("CVS_WS_TOKEN");
-        $apiHost = env("CVS_WS_URL");
+    public static function createUser($firstName, $lastName, $email, $netid)
+    {
+        $token = env('CVS_WS_TOKEN');
+        $apiHost = env('CVS_WS_URL');
         $date = Carbon::now();
         $ourDate = $date->format('Ymd');
-        //\Log::info("CanvasAPI::createUser was started for:".$netid);
+        // \Log::info("CanvasAPI::createUser was started for:".$netid);
         if (strpos($email, 'med.cornell.edu') !== false) {
-            $integration_id = $netid . "-cu_weill-canvastools-" . $ourDate;
+            $integration_id = $netid.'-cu_weill-canvastools-'.$ourDate;
             $login_id = $email;
-            $user_id=$netid;
-            $authentication_provider_id=41;
-            $realm="A.WCMC-AD.NET";
-        }else {
-            $integration_id = $netid . "-cornell-canvastools-" . $ourDate ;
+            $user_id = $netid;
+            $authentication_provider_id = 41;
+            $realm = 'A.WCMC-AD.NET';
+        } else {
+            $integration_id = $netid.'-cornell-canvastools-'.$ourDate;
             $login_id = $netid;
-            $user_id=$netid;
-            $authentication_provider_id=5;
-            $realm="CIT.CORNELL.EDU";
+            $user_id = $netid;
+            $authentication_provider_id = 5;
+            $realm = 'CIT.CORNELL.EDU';
         }
         $data = LDAP::data($netid, $realm);
         if ($data['emplid'] != null) {
-        	$emplid = $data['emplid'];
+            $emplid = $data['emplid'];
         } else {
-           $emplid = $netid;
+            $emplid = $netid;
         }
-        $client = new Client();
+        $client = new Client;
         try {
-        $response = $client->request("POST", $apiHost."accounts/1/users", [
-            'headers' => [
-                'Authorization' => 'Bearer ' . $token,
-                'Accept'        => 'application/json',
-                'http_errors' => true,
-            ],
-            'form_params' => [
-                'user[name]'    => $firstName.' '.$lastName,
-                'communication_channel[type]' => "email",
-                'communication_channel[address]'   => $email,
-                'communication_channel[skip_confirmation]' => true,
-                'pseudonym[sis_user_id]'      => $emplid,
-                'pseudonym[integration_id]'=> $integration_id,
-                'user[status]'        => "active",
-                'pseudonym[authentication_provider_id]' => $authentication_provider_id,
-                'pseudonym[unique_id]' => $login_id,
+            $response = $client->request('POST', $apiHost.'accounts/1/users', [
+                'headers' => [
+                    'Authorization' => 'Bearer '.$token,
+                    'Accept' => 'application/json',
+                    'http_errors' => true,
+                ],
+                'form_params' => [
+                    'user[name]' => $firstName.' '.$lastName,
+                    'communication_channel[type]' => 'email',
+                    'communication_channel[address]' => $email,
+                    'communication_channel[skip_confirmation]' => true,
+                    'pseudonym[sis_user_id]' => $emplid,
+                    'pseudonym[integration_id]' => $integration_id,
+                    'user[status]' => 'active',
+                    'pseudonym[authentication_provider_id]' => $authentication_provider_id,
+                    'pseudonym[unique_id]' => $login_id,
 
-            ]
-        ]);
-        $results = json_decode($response->getBody(), true);
-        } catch(Exception $e) {
-          Log::error("Canvas failure in account creation");
-          return false;
+                ],
+            ]);
+            $results = json_decode($response->getBody(), true);
+        } catch (Exception $e) {
+            Log::error('Canvas failure in account creation');
+
+            return false;
         }
-        //\Log::info("CanvasAPI::createUser: ".$netid." was created successfully ");
+
+        // \Log::info("CanvasAPI::createUser: ".$netid." was created successfully ");
         return true;
     }
-
 
     /**
      * createCourse() - function to create course
      *
-     * @param $courseId
-     * @param $courseName
-     * @param $netid
+     *
+     * @return bool
      *
      * @throws
-     * @return boolean
      */
-    public static function createCourse($courseId,$courseName,$netid) {
-        $token = env("CVS_WS_TOKEN");
-        $apiHost = env("CVS_WS_URL");
-        $client = new Client();
+    public static function createCourse($courseId, $courseName, $netid)
+    {
+        $token = env('CVS_WS_TOKEN');
+        $apiHost = env('CVS_WS_URL');
+        $client = new Client;
         $date = Carbon::now();
         $ourDate = $date->format('Ymd');
         try {
-            $response = $client->request("POST", $apiHost."accounts/51/courses", [
+            $response = $client->request('POST', $apiHost.'accounts/51/courses', [
                 'headers' => [
-                    'Authorization' => 'Bearer ' . $token,
-                    'Accept'        => 'application/json',
+                    'Authorization' => 'Bearer '.$token,
+                    'Accept' => 'application/json',
                     'http_errors' => true,
                 ],
                 'form_params' => [
-                    'course[name]'    => $courseName,
+                    'course[name]' => $courseName,
                     'course[course_code]' => $courseId,
-                    'course[integration_id]'   => $courseId."-canvastools-".$ourDate,
-                    'course[term_id]'      => 46,
-                    'course[is_public]'       => "false",
-                ]
+                    'course[integration_id]' => $courseId.'-canvastools-'.$ourDate,
+                    'course[term_id]' => 46,
+                    'course[is_public]' => 'false',
+                ],
             ]);
             $results = json_decode($response->getBody(), true);
-        } catch(Exception $e) {
-            Log::error("Canvas failure in course creation");
+        } catch (Exception $e) {
+            Log::error('Canvas failure in course creation');
+
             return false;
         }
         try {
-            $enrolled = (new self)->enrollUser($netid, $results["id"]);
-        } catch(Exception $e) {
-            Log::error("Canvas failure in teacher enrollment");
+            $enrolled = (new self)->enrollUser($netid, $results['id']);
+        } catch (Exception $e) {
+            Log::error('Canvas failure in teacher enrollment');
         }
-        //\Log::info("CanvasAPI::createCourse: ".$courseName." was created successfully ");
+
+        // \Log::info("CanvasAPI::createCourse: ".$courseName." was created successfully ");
         return true;
     }
 
     /**
      * enrollUser() - function to enroll a given user in a given course
      *
-     * @param $netid
-     * @param $courseId
+     *
+     * @return bool
      *
      * @throws
-     * @return boolean
      */
-    public static function enrollUser($netid, $courseId) {
-        $token = env("CVS_WS_TOKEN");
-        $apiHost = env("CVS_WS_URL");
-        $client = new Client();
-        $userID=(new self)->getUserID($netid);
+    public static function enrollUser($netid, $courseId)
+    {
+        $token = env('CVS_WS_TOKEN');
+        $apiHost = env('CVS_WS_URL');
+        $client = new Client;
+        $userID = (new self)->getUserID($netid);
         try {
-            $response = $client->request("POST", $apiHost."courses/".$courseId."/enrollments", [
+            $response = $client->request('POST', $apiHost.'courses/'.$courseId.'/enrollments', [
                 'headers' => [
-                    'Authorization' => 'Bearer ' . $token,
-                    'Accept'        => 'application/json',
+                    'Authorization' => 'Bearer '.$token,
+                    'Accept' => 'application/json',
                     'http_errors' => true,
                 ],
                 'form_params' => [
-                    'enrollment[user_id]'    => $userID,
-                    'enrollment[type]' =>  "TeacherEnrollment",
-                    'enrollment[enrollment_state]'   =>  "active",
-                    'enrollment[limit_privileges_to_course_section]'      =>  "false",
-                    'enrollment[notify]'       => "false",
-                ]
+                    'enrollment[user_id]' => $userID,
+                    'enrollment[type]' => 'TeacherEnrollment',
+                    'enrollment[enrollment_state]' => 'active',
+                    'enrollment[limit_privileges_to_course_section]' => 'false',
+                    'enrollment[notify]' => 'false',
+                ],
             ]);
             $results = json_decode($response->getBody(), true);
-        } catch(Exception $e) {
-            Log::error("Canvas failure in user enrollment");
+        } catch (Exception $e) {
+            Log::error('Canvas failure in user enrollment');
+
             return false;
         }
         \Log::info("User $netid was enrolled as a teacher in course $courseId.");
+
         return true;
 
     }
@@ -398,36 +395,37 @@ class CanvasAPI {
     /**
      * blueprintCourse() - function to enroll a given user in a given course
      *
-     * @param $courseId
+     *
+     * @return bool
      *
      * @throws
-     * @return boolean
      */
-    public static function blueprintCourse($courseId) {
-        $token = env("CVS_WS_TOKEN");
-        $apiHost = env("CVS_WS_URL");
-        $client = new Client();
+    public static function blueprintCourse($courseId)
+    {
+        $token = env('CVS_WS_TOKEN');
+        $apiHost = env('CVS_WS_URL');
+        $client = new Client;
         $id = (new self)->getCourseID($courseId);
         try {
-            $response = $client->request("PUT", $apiHost."courses/541/blueprint_templates/default/update_associations", [
+            $response = $client->request('PUT', $apiHost.'courses/541/blueprint_templates/default/update_associations', [
                 'headers' => [
-                    'Authorization' => 'Bearer ' . $token,
-                    'Accept'        => 'application/json',
+                    'Authorization' => 'Bearer '.$token,
+                    'Accept' => 'application/json',
                     'http_errors' => true,
                 ],
                 'form_params' => [
-                    'course_ids_to_add'    => $id,
-                ]
+                    'course_ids_to_add' => $id,
+                ],
             ]);
             $results = json_decode($response->getBody(), true);
-        } catch(Exception $e) {
-            Log::error("Canvas failure in blueprint course association");
+        } catch (Exception $e) {
+            Log::error('Canvas failure in blueprint course association');
+
             return false;
         }
         \Log::info("Course $courseId was associated as a blueprint course.");
+
         return true;
 
     }
-
-
 }

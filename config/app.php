@@ -210,7 +210,7 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
-        'Telescope'    => App\Providers\TelescopeServiceProvider::class,
+        'Telescope' => App\Providers\TelescopeServiceProvider::class,
 
     ],
 

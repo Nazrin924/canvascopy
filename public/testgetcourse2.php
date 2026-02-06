@@ -1,8 +1,9 @@
-<?PHP
-$username = "session";
-$password = "nosession";
+<?php
+
+$username = 'session';
+$password = 'nosession';
 $time = gmdate("Y-m-d\TH:i:s\Z");
-$timeplusone= gmdate("Y-m-d\TH:i:s\Z",time()+10);
+$timeplusone = gmdate("Y-m-d\TH:i:s\Z", time() + 10);
 
 $request = <<<REQUEST_BODY
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
@@ -23,13 +24,11 @@ $request = <<<REQUEST_BODY
 </soapenv:Envelope>
 REQUEST_BODY;
 
-print "REQUEST:<br>";
-print $request;
+echo 'REQUEST:<br>';
+echo $request;
 
-
-//$url = Config::get('app.ps_url');
+// $url = Config::get('app.ps_url');
 $url = 'https://cornell-test.blackboard.com:443/webapps/ws/services/Context.WS';
-
 
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $url);
@@ -40,46 +39,40 @@ curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_POSTFIELDS, $request);
-curl_setopt($ch, CURLOPT_HTTPHEADER,  array('Content-Type: text/xml',
-											'Content-Length: '.strlen($request),
-            								'SOAPAction: initialize'));
-$result= curl_exec($ch);
-print "<br>".$url."<br>";
+curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: text/xml',
+    'Content-Length: '.strlen($request),
+    'SOAPAction: initialize']);
+$result = curl_exec($ch);
+echo '<br>'.$url.'<br>';
 // print "<br>".$result."<br>";
 
-
-
 $doc = new SimpleXMLElement(strstr($result, '<?xml'));
-$doc->registerXPathNamespace("ns","http://context.ws.blackboard");
+$doc->registerXPathNamespace('ns', 'http://context.ws.blackboard');
 
-$dom = new DOMDocument("1.0");
+$dom = new DOMDocument('1.0');
 $dom->preserveWhiteSpace = false;
 $dom->formatOutput = true;
 $dom->loadXML($doc->asXML());
 $xmlstring = $dom->saveXML(); // formatted xml string
-print "RESPONSE:<br>";
-print "<br>".$xmlstring."<br>";
+echo 'RESPONSE:<br>';
+echo '<br>'.$xmlstring.'<br>';
 
-$response["xmlstring"] = $xmlstring;
+$response['xmlstring'] = $xmlstring;
 
-$response = (string) $doc->xpath("//ns:return")[0];
-$sessionid =  $response;
+$response = (string) $doc->xpath('//ns:return')[0];
+$sessionid = $response;
 
-
-
-///               END OF PART ONE
-
+// /               END OF PART ONE
 
 // Now, create a login object.
-$username = "session";
+$username = 'session';
 $password = $sessionid;
 $time = gmdate("Y-m-d\TH:i:s\Z");
-$timeplusone= gmdate("Y-m-d\TH:i:s\Z",time()+10);
-print "Time is ". $time. "<br>";
+$timeplusone = gmdate("Y-m-d\TH:i:s\Z", time() + 10);
+echo 'Time is '.$time.'<br>';
 
-$loginusername = "cuwsguest";
-$loginpassword = "cuwsguest";
-
+$loginusername = 'cuwsguest';
+$loginpassword = 'cuwsguest';
 
 $request = <<<REQUEST_BODY
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:con="http://context.ws.blackboard">
@@ -115,55 +108,49 @@ $request = <<<REQUEST_BODY
 </soapenv:Envelope>
 REQUEST_BODY;
 
+echo 'REQUEST:<br>';
+echo '<br>'.$request.'<br>';
 
-print "REQUEST:<br>";
-print "<br>".$request."<br>";
-
-
-//$url = Config::get('app.ps_url');
+// $url = Config::get('app.ps_url');
 $url = 'https://cornell-test.blackboard.com:443/webapps/ws/services/Context.WS';
 
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $url);
+curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+curl_setopt($ch, CURLOPT_POST, true);
+curl_setopt($ch, CURLOPT_POSTFIELDS, $request);
+curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: text/xml',
+    'Content-Length: '.strlen($request),
+    'SOAPAction: login']);
+$result = curl_exec($ch);
+echo '<br>'.$url.'<br>';
+// print "<br>".$result."<br>";
 
-	$ch = curl_init();
-	curl_setopt($ch, CURLOPT_URL, $url);
-	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-	curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-	curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-	curl_setopt($ch, CURLOPT_POST, true);
-	curl_setopt($ch, CURLOPT_POSTFIELDS, $request);
-	curl_setopt($ch, CURLOPT_HTTPHEADER,  array('Content-Type: text/xml',
-												'Content-Length: '.strlen($request),
-	            								'SOAPAction: login'));
-	$result= curl_exec($ch);
-	print "<br>".$url."<br>";
-	//print "<br>".$result."<br>";
+$doc = new SimpleXMLElement(strstr($result, '<?xml'));
+$doc->registerXPathNamespace('ns', 'http://context.ws.blackboard');
 
-	$doc = new SimpleXMLElement(strstr($result, '<?xml'));
-	$doc->registerXPathNamespace("ns","http://context.ws.blackboard");
+$dom = new DOMDocument('1.0');
+$dom->preserveWhiteSpace = false;
+$dom->formatOutput = true;
+$dom->loadXML($doc->asXML());
+$xmlstring = $dom->saveXML(); // formatted xml string
+echo 'RESPONSE:<br>';
+echo '<br>'.$xmlstring.'<br>';
 
-	$dom = new DOMDocument("1.0");
-	$dom->preserveWhiteSpace = false;
-	$dom->formatOutput = true;
-	$dom->loadXML($doc->asXML());
-	$xmlstring = $dom->saveXML(); // formatted xml string
-	print "RESPONSE:<br>";
-	print "<br>".$xmlstring."<br>";
+$loggedin = $doc->xpath('//ns:return')[0];
 
-
-	$loggedin = $doc->xpath("//ns:return")[0];
-
-	print "<br>Logged in: ".$loggedin."<br>";
+echo '<br>Logged in: '.$loggedin.'<br>';
 
 // OK, now I'm logged in
 // Let's try to get a course:
 
 $url = 'https://cornell-test.blackboard.com:443/webapps/ws/services/Course.WS';
 $time = gmdate("Y-m-d\TH:i:s\Z");
-$timeplusone= gmdate("Y-m-d\TH:i:s\Z",time()+10);
-
-
+$timeplusone = gmdate("Y-m-d\TH:i:s\Z", time() + 10);
 
 $request = <<< REQUEST_BODY
 	<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:cour="http://course.ws.blackboard" xmlns:xsd="http://course.ws.blackboard/xsd">
@@ -192,8 +179,8 @@ $request = <<< REQUEST_BODY
 	</soapenv:Envelope>
 REQUEST_BODY;
 
-print "REQUEST:<br>";
-print "<br>$request<br>";
+echo 'REQUEST:<br>';
+echo "<br>$request<br>";
 // systemRoles was USER
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $url);
@@ -204,31 +191,27 @@ curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_POSTFIELDS, $request);
-curl_setopt($ch, CURLOPT_HTTPHEADER,  array('Content-Type: text/xml',
-										'Content-Length: '.strlen($request),
-										'SOAPAction: getCourse'));
-$result= curl_exec($ch);
-print "<br>".$url."<br>";
+curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: text/xml',
+    'Content-Length: '.strlen($request),
+    'SOAPAction: getCourse']);
+$result = curl_exec($ch);
+echo '<br>'.$url.'<br>';
 
 $doc = new SimpleXMLElement($result);
-$doc->registerXPathNamespace("userdata","http://user.ws.blackboard/xsd");
-$dom = new DOMDocument("1.0");
+$doc->registerXPathNamespace('userdata', 'http://user.ws.blackboard/xsd');
+$dom = new DOMDocument('1.0');
 $dom->preserveWhiteSpace = true;
 $dom->formatOutput = true;
 $dom->loadXML($doc->asXML());
 $xmlstring = $dom->saveXML(); // formatted xml string
-print "RESPONSE:<br>";
-print "<br>".$xmlstring."<br>";
+echo 'RESPONSE:<br>';
+echo '<br>'.$xmlstring.'<br>';
 
 //  END OF GETCOURSE TEST
 
-$return = $doc->xpath("//userdata:name");
+$return = $doc->xpath('//userdata:name');
 if (strlen($xmlstring) > 0) {
-	print "Course $name is found<br>";
+    echo "Course $name is found<br>";
 } else {
-	print "Course not found<br>";
+    echo 'Course not found<br>';
 }
-
-
-
-?>

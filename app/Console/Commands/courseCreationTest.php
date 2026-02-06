@@ -2,9 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Jobs\DoCourseCreation;
-
+use Illuminate\Console\Command;
 use Queue;
 
 class courseCreationTest extends Command
@@ -41,12 +40,12 @@ class courseCreationTest extends Command
     public function handle()
     {
         $date = getdate();
-        $mon = $date["mon"];
-        $mday = $date["mday"];
-        $year = $date["year"];
-        $sec = $date["seconds"];
-        $min = $date["minutes"];
-        $hr = $date["hours"];
-        Queue::push(new DoCourseCreation("courseTest$mon$mday$year$hr$min$sec", "courseName$mon$mday$year$hr$min$sec", "amg295", "Test", env('CU_REALM')));
+        $mon = $date['mon'];
+        $mday = $date['mday'];
+        $year = $date['year'];
+        $sec = $date['seconds'];
+        $min = $date['minutes'];
+        $hr = $date['hours'];
+        Queue::push(new DoCourseCreation("courseTest$mon$mday$year$hr$min$sec", "courseName$mon$mday$year$hr$min$sec", 'amg295', 'Test', env('CU_REALM')));
     }
 }
