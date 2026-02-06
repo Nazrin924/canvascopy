@@ -2,10 +2,10 @@
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\debugController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\TesterController;
 use App\Http\Controllers\WelcomeController;
-use App\Http\Controllers\debugController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -76,16 +76,16 @@ Route::middleware('userrole')->group(function () {
 });
 
 Route::get('ldapError', function () {
-        return view('ldapError');
-    })->name('ldapError');
+    return view('ldapError');
+})->name('ldapError');
 
 Route::get('blackboardError', function () {
-        return view('blackboardError');
-    })->name('blackboardError');
+    return view('blackboardError');
+})->name('blackboardError');
 
 Route::get('badCourseID', function () {
-        return view('badCourseID');
-    })->name('badCourseID');
+    return view('badCourseID');
+})->name('badCourseID');
 
 Route::middleware('test')->group(function () {
     Route::get('debug', [debugController::class, 'testSomething']);
